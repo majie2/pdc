@@ -7,33 +7,63 @@
 clientDirectory="/home/josef/Documents/clients"
 
 #directory of files to sort
-if [ ! -d ${1} ]; then
+if [ ! -d "${1}" ]; then
 	echo "Could not find ${1}"
 	exit 0
 fi
 
 #mapping file
-if [ ! -e ${2} ]; then
+if [ ! -e "${2}" ]; then
 	echo "Could not find ${2}"
 	exit 0
 fi
 
+echo "Loading mapping file..."
+
+declare -a keys
+
+while read line
+do
+	key=`echo $line | sed -e 's/ /_/g'`
+
+	keys=( ${keys[@]-} $(echo "$key") )
+done < $2
+
+echo "Discovering pdfs..."
+
 shopt -s nullglob
-for f in ${1}/*.pdf
+find "${1}"/*.pdf -print0 | while read -d $'\0' f
 do
 	#convert pdf to text file
-	pdftotext -f 1 -l 1 ${f} ${1}/temp.txt
+	pdftotext -f 1 -l 1 "$f" "${1}"/temp.txt
+
+	clientMap=""
+	key=""
+	location=""
+
+	for i in ${keys[@]}
+	do
+		key=`echo $i | sed -e 's/_/ /g' | cut -f1 -d:`
+		location=`grep "$key" "${1}"/temp.txt`
+
+		if [ -n "$location" ]; then
+			echo "${f##*/} -> $key"
+			clientMap=`echo "$i" | sed -e 's/_/ /g'`
+			break
+		fi
+	done
+
 	#extract client name from text file
-	clientName=`sed -n '6p' ${1}/temp.txt`
+	#clientName=`sed -n '6p' "${1}"/temp.txt`
 
 	#make sure clientName is not empty
-	if [ -n "${clientName}" ]; then
+	if [ -n "$clientMap" ]; then
 		#find directory name from mapping file
-		directoryName=`grep "${clientName}" ${2} | cut -f2 -d:`
+		directoryName=`echo $clientMap | cut -f2 -d:`
 
 		#make sure the schwab statements directory exists in client folder
-		if [ -e ${clientDirectory}/${directoryName}/Schwab\ Statements/ ]; then
-			echo "Found ${clientName} -> ${directoryName}"
+		if [ -e ${clientDirectory}/"${directoryName}"/Schwab\ Statements/ ]; then
+			#echo "Found ${clientName} -> ${directoryName}"
 			month=`echo ${f} | cut -f2 -d_ | cut -c1-2`
 			year=`echo ${f} | cut -f2 -d_ | cut -c3-6`
 
@@ -90,14 +120,16 @@ do
 				mkdir "${finalDirectory}"
 			fi
 
-			echo "Copying ${f##*/}"
+			echo "Copying ${f##*/} to ${directoryName}"
 
-			cp ${f} "${finalDirectory}${f##*/}"
+			#if [ ! -e "${finalDirectory}${f##*/}" ]; then
+				cp "$f" "${finalDirectory}"${f##*/}
+			#fi
 		fi
 	fi
 done
 
 echo "Cleaning up... done"
-rm ${1}/temp.txt
+rm "${1}"/temp.txt
 
 echo "Finished moving Schwab Statements"
