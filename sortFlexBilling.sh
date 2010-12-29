@@ -6,7 +6,7 @@
 
 #directory of containing client folders
 #since this is likely run from a virtual machine, mount your fileshare to some folder and specify here
-clientsDirectory="/home/josef/Documents/clients"
+clientsDirectory="/mnt/flex"
 
 #directory of files to sort
 if [ ! -d "${1}" ]; then
