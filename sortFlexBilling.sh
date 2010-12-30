@@ -1,22 +1,16 @@
 #! /bin/bash
-# args 1: directory of files to sort (pdfs, CLIENT.PLANTYPE.pdf)
-# args 2: mapping file, maps client name in pdf to folder name
+# args 1: mapping file, maps client name in pdf to folder name
 #	: each line must be formatted like "CLIENT.PLANTYPE:CLIENTFOLDER:PLANFOLDER"
-# args 3: name for final pdf
+# args 2: name for final pdf
 
-#directory of containing client folders
-#since this is likely run from a virtual machine, mount your fileshare to some folder and specify here
+#directory containing client folders
 clientsDirectory="/mnt/flex"
-
-#directory of files to sort
-if [ ! -d "${1}" ]; then
-	echo "could not find ${1}, exiting"
-	exit 0
-fi
+#directory of final pdfs to sort
+finalDirectory="/mnt/billing/final"
 
 #mapping file
-if [ ! -e "${2}" ]; then
-	echo "could not find ${2}, exiting..."
+if [ ! -e "${1}" ]; then
+	echo "could not find ${1}, exiting..."
 	exit 0
 fi
 
@@ -28,12 +22,12 @@ while read line
 do
 	key=`echo $line | sed -e 's/ /_/g'`
 	keys=( ${keys[@]-} $(echo "$key") )
-done < $2
+done < $1
 
 echo "discovering files..."
 
 shopt -s nullglob
-find "${1}"/*.pdf -print0 | while read -d $'\0' f
+find "${finalDirectory}"/*.pdf -print0 | while read -d $'\0' f
 do
 	clientName=`echo ${f##*/} | cut -f1-2 -d.`
 	clientMap=""
@@ -58,7 +52,7 @@ do
 		#make sure directory exists in client folder
 		if [ -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/ ]; then
 			echo "Copying ${f##*/} to ${clientDirectory}/${planDirectory}/Billing"
-			cp "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}.pdf
+			cp "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${2}.pdf
 		fi
 	fi
 done

@@ -1,9 +1,6 @@
 #! /bin/bash
 # args: directory of files
 
-# stamp preceeding all output
-PERSON="Vader:"
-
 # statement file
 STATEMENT="${1}/statements.pdf"
 
@@ -12,9 +9,9 @@ INVOICE="${1}/invoices.pdf"
 
 # check if the directory exists
 if [ -d ${1} ]; then
-	echo "${PERSON} found ${1}"
+	echo "found ${1}..."
 else
-	echo "${PERSON} I could not find ${1}"
+	echo "could not find ${1}, exiting..."
 	exit 0
 fi
 
@@ -32,7 +29,7 @@ if [ -e ${STATEMENT} ]; then
 	# get the number of pages in statement
 	pdfinfo ${STATEMENT} > ${STATEMENT}.info.txt
 	statementPages=`grep "Pages" ${STATEMENT}.info.txt | cut -f2 -d:`
-	echo "${PERSON} discovered ${statementPages##* } pages in ${STATEMENT}"
+	echo "discovered ${statementPages##* } pages in ${STATEMENT}..."
 
 	#remove temporary info file
 	rm ${STATEMENT}.info.txt
@@ -49,14 +46,15 @@ if [ -e ${STATEMENT} ]; then
 		# pdfname format: NICKNAME.TYPE
 		statementPDF=`sed "${statementClientId}q;d" ${1}/temp/page_$i.txt | cut -f1 -d' '`
 
-		echo "${PERSON} building ${statementPDF}.statement"
+		echo "building ${statementPDF}.statement"
 		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=$i -dLastPage=$i -sOutputFile=${1}/statements/${statementPDF// /_}.pdf ${STATEMENT}
 
 		# remove temporary txt file
 		rm ${1}/temp/page_$i.txt
 	done
 else
-	echo "${PERSON} I could not find ${STATEMENT}"
+	echo "could not find ${STATEMENT}, exiting..."
+	exit 0
 fi
 
 # build invoice pdfs
@@ -68,7 +66,7 @@ if [ -e ${INVOICE} ]; then
 	# get the number of pages in statement
 	pdfinfo ${INVOICE} > ${INVOICE}.info.txt
 	invoicePages=`grep "Pages" ${INVOICE}.info.txt | cut -f2 -d:`
-	echo "${PERSON} discovered ${invoicePages##* } pages in ${INVOICE}"
+	echo "discovered ${invoicePages##* } pages in ${INVOICE}..."
 
 	#remove temporary info file
 	rm ${INVOICE}.info.txt
@@ -85,19 +83,20 @@ if [ -e ${INVOICE} ]; then
 		# pdfname format: NICKNAME.TYPE
 		invoicePDF=`sed "${invoiceClientId}q;d" ${1}/temp/page_$j.txt | cut -f1 -d' '`
 
-		echo "${PERSON} building ${invoicePDF}.invoice"
+		echo "building ${invoicePDF}.invoice"
 		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=$j -dLastPage=$j -sOutputFile=${1}/invoices/${invoicePDF// /_}.pdf ${INVOICE}
 		
 		# remove temporary txt file
 		rm ${1}/temp/page_$j.txt
 	done
 else
-	echo "${PERSON} I could not find ${INVOICE}"
+	echo "could not find ${INVOICE}, exiting..."
+	exit 0
 fi
 
 # combine everything
 if [ -d ${1}/invoices ]; then
-	echo "${PERSON} building billing pdfs"
+	echo "building billing pdfs..."
 
 	if [ ! -d ${1}/final ]; then
 		mkdir ${1}/final
@@ -111,7 +110,7 @@ if [ -d ${1}/invoices ]; then
 		isTerm="${fileNameStripped}.TERM"
 
 		if [ -e ${1}/details/$isTerm ]; then
-			echo "${PERSON} ${fileNameStripped} is terminated"
+			echo "${fileNameStripped} is terminated"
 		else
 			if [ -e ${1}/statements/$fileName ]; then
 				outStatement=`echo ${1}/statements/$fileName`
@@ -143,17 +142,17 @@ if [ -d ${1}/invoices ]; then
 				outLimited=``
 			fi
 
-			echo "${PERSON} ${fileName} final"
+			echo "${fileName} final..."
 			gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${outStatement} ${1}/invoices/${fileName} ${outCoverpage} ${outDetail} ${outLimited} ${outDebit}
 		fi
 	done
 fi
 
-echo "${PERSON} cleaning up..."
+echo "cleaning up..."
 
-rmdir ${1}/temp
+rm -r ${1}/temp
 rm -r ${1}/statements
 rm -r ${1}/invoices
 
-echo "${PERSON} done!"
-echo "${PERSON} Your files are in the final folder"
+echo "done!"
+echo "Your files are in the final folder"
