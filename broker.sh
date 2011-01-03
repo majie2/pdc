@@ -1,7 +1,7 @@
 #! /bin/bash
 # args 1: the broker text file
 
-BILLINGDIR="/home/josef/Documents/sandbox"
+BILLINGDIR="/mnt/billing"
 
 # invoice file
 INVOICE="${BILLINGDIR}/invoices.pdf"

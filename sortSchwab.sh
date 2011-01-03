@@ -4,7 +4,7 @@
 #	: each line must be formatted like "CLIENT NAME:FOLDER NAME"
 
 #directory of containing client folders
-clientDirectory="/home/josef/Documents/clients"
+clientDirectory="/mnt/clients"
 
 #directory of files to sort
 if [ ! -d "${1}" ]; then
