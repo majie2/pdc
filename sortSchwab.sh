@@ -53,9 +53,6 @@ do
 		fi
 	done
 
-	#extract client name from text file
-	#clientName=`sed -n '6p' "${1}"/temp.txt`
-
 	#make sure clientName is not empty
 	if [ -n "$clientMap" ]; then
 		#find directory name from mapping file
@@ -126,6 +123,8 @@ do
 				cp "$f" "${finalDirectory}"${f##*/}
 			#fi
 		fi
+	else
+		echo "**** COULD NOT MOVE $f"
 	fi
 done
 
