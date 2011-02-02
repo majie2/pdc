@@ -25,8 +25,8 @@ THIS_PATH="`dirname \"$0\"`"
 
 # build statements
 ${THIS_PATH}/splitPDF.sh ${STATEMENT} ${1}/statements 2
-${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 4
-${THIS_PATH}/splitPDF.sh ${CREDITMEMO} ${1}/credit_memos 4
+${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 2
+${THIS_PATH}/splitPDF.sh ${CREDITMEMO} ${1}/credit_memos 2
 ${THIS_PATH}/splitPDF.sh ${TRUST} ${1}/trusts 2
 
 # build invoices to clients
@@ -150,7 +150,7 @@ if [ -d ${1}/invoices ]; then
 fi
 
 # build file copy invoice
-if [ -d ${1}/Excel ]; then
+if [ -d ${1}/Dummy ]; then
 	echo "building file copy invoices from excel..."
 
 	if [ ! -d ${1}/file_copy ]; then
@@ -158,9 +158,15 @@ if [ -d ${1}/Excel ]; then
 	fi
 
 	shopt -s nullglob
-	for f in ${1}/Excel/*.pdf
+	for f in ${1}/Dummy/*.pdf
 	do
 		fileName=`echo ${f##*/}`
+
+		if [ -e ${1}/Excel/$fileName ]; then
+			fcExcel=`echo ${1}/Excel/$fileName`
+		else
+			fcExcel=``
+		fi
 
 		if [ -e ${1}/credit_memos/$fileName ]; then
 			fcCreditMemo=`echo ${1}/credit_memos/$fileName`
@@ -193,7 +199,7 @@ if [ -d ${1}/Excel ]; then
 		fi
 
 		echo "${fileName} file copy..."
-		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${1}/Excel/${fileName} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcDistributionChecklist} ${fcEmail}
+		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${fcExcel} ${1}/Dummy/${fileName} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcDistributionChecklist} ${fcEmail}
 	done
 fi
 

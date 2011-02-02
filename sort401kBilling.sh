@@ -5,9 +5,9 @@
 # args 3: current year
 
 #directory containing client folders
-clientsDirectory="/mnt/flex"
+clientsDirectory="/mnt/clients"
 #directory of final pdfs to sort
-finalDirectory="/mnt/billing/final"
+finalDirectory="/mnt/billing_401k/file_copy"
 
 #mapping file
 if [ ! -e "${1}" ]; then
@@ -52,7 +52,7 @@ do
 
 		#make sure directory exists in client folder
 		if [ -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
-			echo "Copying ${f##*/} to ${clientDirectory}/${planDirectory}/Billing"
+			echo "Copying ${f##*/} to ${clientDirectory}/${planDirectory}/Billing/${3}"
 			cp "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}/${2}.pdf
 		else
 			echo "Could not find directory for ${f##*/}"
