@@ -50,10 +50,21 @@ do
 		clientDirectory=`echo $clientMap | cut -f2 -d:`
 		planDirectory=`echo $clientMap | cut -f3 -d:`
 
-		#make sure directory exists in client folder
-		if [ -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
-			echo "Copying ${f##*/} to ${clientDirectory}/${planDirectory}/Billing"
-			cp "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}/${2}.pdf
+		#make sure billing directory exists
+		if [ -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing ]; then
+			#make sure year directory exists, if not, create it
+			if [ ! -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
+				echo "Creating directory ${3} for ${f##*/}"
+				mkdir ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}
+			fi
+
+			#only move the file if it doesn't exist in destination directory
+			if [ ! -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}/${2}.pdf ]; then
+				echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/Billing/${3}"
+				mv "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}/${2}.pdf
+			else
+				echo "${clientDirectory}/${planDirectory}/Billing/${3}/${2}.pdf already exists!!!"
+			fi
 		else
 			echo "Could not find directory for ${f##*/}"
 		fi

@@ -51,10 +51,10 @@ do
 		planDirectory=`echo $clientMap | cut -f3 -d:`
 
 		#make sure billing directory exists
-		if [ -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing ]; then
+		if [ -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing ]; then
 			#make sure year directory exists, if not, create it
-			if [ ! -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
-				echo "creating directory ${3} for ${f##*/}"
+			if [ ! -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
+				echo "Creating directory ${3} for ${f##*/}"
 				mkdir ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}
 			fi
 
