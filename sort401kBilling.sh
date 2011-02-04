@@ -51,7 +51,12 @@ do
 		planDirectory=`echo $clientMap | cut -f3 -d:`
 
 		#make sure directory exists in client folder
-		if [ -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
+		if [ -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing ]; then
+			if [ ! -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
+				echo "creating directory ${3} for ${f##*/}"
+				mkdir ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}
+			fi
+
 			echo "Copying ${f##*/} to ${clientDirectory}/${planDirectory}/Billing/${3}"
 			cp "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}/${2}.pdf
 		else
