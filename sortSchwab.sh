@@ -119,12 +119,14 @@ do
 
 			echo "Copying ${f##*/} to ${directoryName}"
 
-			#if [ ! -e "${finalDirectory}${f##*/}" ]; then
-				cp "$f" "${finalDirectory}"${f##*/}
-			#fi
+			if [ ! -e "${finalDirectory}"${f##*/} ]; then
+				mv "$f" "${finalDirectory}"${f##*/}
+			else
+				"${f##*/} already exists in target location"
+			fi
 		fi
 	else
-		echo "**** COULD NOT MOVE $f"
+		echo "${f##*/} has no map"
 	fi
 done
 
