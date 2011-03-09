@@ -1,7 +1,15 @@
 #! /bin/bash
-# no args
-# fixes the 70 rules file automagically to get internet config correctly
-# needs to be run as sudo (duh!)
+# author:	Josef Kelly
+# date:		March 11 2011
+# license:	MIT
+#
+# description:
+# Fixes the 70-persistant-net-rules file automagically to configure the internet correctly
+# This is typically needed when running a vm on different machines
+# 
+# args 1: network interface (optional, will assume eth0 if not specified)
+#
+# RUN SUDO
 
 PREFIX="fixInternet:"
 THIS_PATH="`dirname \"$0\"`"

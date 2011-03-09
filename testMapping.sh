@@ -1,4 +1,11 @@
 #! /bin/bash
+# author:	Josef Kelly
+# date:		March 9 2011
+# license:	MIT
+#
+# description:
+# Determines if a mapping file is correct
+#
 # args 1: directory of clients
 # args 2: mapping file
 

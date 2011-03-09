@@ -4,12 +4,12 @@
 # license:	MIT
 #
 # description:
-# This script splits a specified pdf into individual pages. Each page will be a separate pdf file.
+# Splits a specified pdf into individual pages. Each page will be a separate pdf file.
 # Each page is named using the following convention: the page is converted into a text file. The script searches for a unique key in that text file.
 # Then the script extracts the line from the text file a specified number of lines after the unique key
 # Only the first token delimited by spaces will be used, i.e. if the line extracted is 'namethis something cool', the pdf will be named 'namethis.pdf'
 #
-# arguements
+# arguments
 # args 1: pdf file to split
 # args 2: directory for split pages
 # args 3: amount of lines to add after unique key

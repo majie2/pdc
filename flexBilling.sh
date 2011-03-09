@@ -1,4 +1,11 @@
 #! /bin/bash
+# author:	Josef Kelly
+# date:		March 9 2011
+# license:	MIT
+#
+# description:
+# This script generates the final billing pdfs for flex clients.
+#
 # args: directory of files
 
 # statement file

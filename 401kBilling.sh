@@ -1,12 +1,11 @@
 #! /bin/bash
 # author:	Josef Kelly
-# date:		Feb 11 2011
+# date:		February 11 2011
 # license:	MIT
 #
-# description of script:
-# This script generates the final and file copy billing pdfs for 401k clients
+# description:
+# Generates the final and file copy billing pdfs for 401k clients
 #
-# arguements
 # args 1: directory of files containing the original billing pdfs (statements, invoices, credit memos, etc...)
 
 # declare paths to commonly used files

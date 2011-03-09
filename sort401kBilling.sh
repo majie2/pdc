@@ -1,6 +1,13 @@
 #! /bin/bash
+# author:	Josef Kelly
+# date:		March 9 2011
+# license:	MIT
+#
+# description:
+# Sorts the file copy billing pdf invoices in their respective client folders
+#
 # args 1: mapping file, maps client name in pdf to folder name
-#	: each line must be formatted like "CLIENT.PLANTYPE:CLIENTFOLDER:PLANFOLDER"
+#  note : each line must be formatted like "CLIENT.PLANTYPE:CLIENTFOLDER:PLANFOLDER"
 # args 2: name for final pdf
 # args 3: current year
 

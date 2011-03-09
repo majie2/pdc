@@ -1,4 +1,11 @@
 #! /bin/bash
+# author:	Josef Kelly
+# date:		February 11 2011
+# license:	MIT
+#
+# description:
+# Extracts invoice numbers and billing amounts for specified brokers
+#
 # args 1: the broker text file
 
 BILLINGDIR="/mnt/billing"
