@@ -1,10 +1,12 @@
 #! /bin/bash
+# author:	Josef Kelly
+# date:		March 9 2011
+# license:	MIT
+#
+# description:
+# sorts schwab statements
+#
 # args 1: directory of files to sort (pdfs, must have date in filename and client name in pdf)
-# args 2: mapping file, maps client name in pdf to folder name
-#	: each line must be formatted like "CLIENT NAME:FOLDER NAME"
-
-#directory of containing client folders
-clientDirectory="/mnt/clients"
 
 #directory of files to sort
 if [ ! -d "${1}" ]; then
@@ -12,22 +14,33 @@ if [ ! -d "${1}" ]; then
 	exit 0
 fi
 
+#directory of containing client folders
+clientDirectory="/mnt/clients"
+
 #mapping file
-if [ ! -e "${2}" ]; then
-	echo "Could not find ${2}"
+map="/mnt/config/map.txt"
+
+#mapping file
+if [ ! -e $map ]; then
+	echo "Could not find $map"
 	exit 0
 fi
 
-echo "Loading mapping file..."
+#log file
+log="~/schwab.log"
 
+if [ ! -e $log ]; then
+    touch $log
+fi
+
+echo "Loading mapping file..."
 declare -a keys
 
 while read line
 do
 	key=`echo $line | sed -e 's/ /_/g'`
-
 	keys=( ${keys[@]-} $(echo "$key") )
-done < $2
+done < ${map}
 
 echo "Discovering pdfs..."
 
@@ -47,7 +60,6 @@ do
 		location=`grep "$key" "${1}"/temp.txt`
 
 		if [ -n "$location" ]; then
-			echo "${f##*/} -> $key"
 			clientMap=`echo "$i" | sed -e 's/_/ /g'`
 			break
 		fi
@@ -122,15 +134,15 @@ do
 			if [ ! -e "${finalDirectory}"${f##*/} ]; then
 				mv "$f" "${finalDirectory}"${f##*/}
 			else
-				"${f##*/} already exists in target location"
+				"${f##*/} already exists in target location" >> $log
 			fi
 		fi
 	else
-		echo "${f##*/} has no map"
+		echo "${f##*/} has no map" >> $log
 	fi
 done
 
 echo "Cleaning up... done"
 rm "${1}"/temp.txt
-
 echo "Finished moving Schwab Statements"
+echo "Check schwab.log to view errors"
