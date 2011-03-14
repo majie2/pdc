@@ -9,16 +9,19 @@
 # args 1: directory to search for map results
 # args 2: mapping file
 
-if [ ! -d $1 ]; then
-    echo "$1 not found"
+function checkDir {
+    if [ ! -d "$1" ]; then
+        echo "Directory does not exist: $1"
+    fi
+}
+
+checkDir $1
+
+if [ ! -e "$2" ]; then
+    echo "File not found: $2"
 fi
 
-if [ ! -e $2 ]; then
-    echo "$2 not found"
-fi
-
-echo "testing map: $2"
-
+echo "Testing map: $2"
 declare -a keys
 
 while read line
@@ -30,4 +33,18 @@ done < $2
 for i in ${keys[@]}
 do
     count=`echo $i | grep -o ":" | wc -l | sed /\ //g`
+    
+    case $count in
+    1)
+        dirA=`echo $i | cut -f2 -d:`
+        checkDir $1/$dirA
+        ;;
+    2)
+        dirA=`echo $i | cut -f2 -d:`
+        dirB=`echo $i | cut -f3 -d:`
+        checkDir $1/$dirA/$dirB
+        ;;
+    *)
+        echo "Unable to check $i"
+    esac
 done

@@ -1,10 +1,11 @@
 #! /bin/bash
 # author:	Josef Kelly
-# date:		March 9 2011
+# date:		March 14 2011
 # license:	MIT
 #
 # description:
-# Generates billing pdfs for 
+# Generates billing pdfs for qm
+#
 # args 1:
 
 # invoice file
@@ -14,20 +15,22 @@ INVOICE="${1}/invoices.pdf"
 STATEMENT="${1}/statements.pdf"
 
 # check if the directory exists
-if [ -d ${1} ]; then
-	echo "found ${1}..."
-else
-	echo "could not find ${1}, exiting..."
-	exit 0
+if [ ! -d "$1" ]; then
+    echo "Directory does not exist: $1"
+    exit 0
 fi
 
 # location where this script is being executed
 THIS_PATH="`dirname \"$0\"`"
 
-echo -n "Generate File Copy [y / n]? "
-read answer
+echo "Type the number of your selection and press enter"
 
-if [ $answer == "n" ]; then
+select word in "Plan Invoices" "File Copy"
+do
+    break
+done
+
+if [ "$word" = "Plan Invoices" ]; then
     # split source pdf documents, uses the splitPDF script
     ${THIS_PATH}/splitPDF.sh ${STATEMENT} ${1}/statements 2
 
@@ -67,7 +70,7 @@ if [ $answer == "n" ]; then
     fi
 fi
 
-if [ $answer == "y" ]; then
+if [ "$word" = "File Copy" ]; then
     # split source pdf documents, uses the splitPDF script
     ${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 2
     
