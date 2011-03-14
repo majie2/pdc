@@ -26,13 +26,13 @@ declare -a keys
 
 while read line
 do
-	key=`echo $line`
+	key=`echo $line | sed -e 's/ /_/g'`
 	keys=( ${keys[@]-} $(echo "$key") )
 done < $2
 
 for i in ${keys[@]}
 do
-    count=`echo $i | grep -o ":" | wc -l | sed /\ //g`
+    count=`echo $i | sed -e 's/_/ /g' | grep -o ":" | wc -l | sed /\ //g`
     
     case $count in
     1)
