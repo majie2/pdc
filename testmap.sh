@@ -32,7 +32,7 @@ done < $2
 
 for i in ${keys[@]}
 do
-    count=`echo $i | sed -e 's/_/ /g' | grep -o ":" | wc -l | sed /\ //g`
+    count=`echo $i | sed -e 's/_/ /g' | grep -o ":" | wc -l | sed '/\ //g'`
     
     case $count in
     1)
