@@ -8,11 +8,8 @@
 #
 # args 1: directory of files to sort (pdfs, must have date in filename and client name in pdf)
 
-#directory of files to sort
-if [ ! -d "${1}" ]; then
-	echo "Could not find ${1}"
-	exit 0
-fi
+# location where this script is being executed
+THIS_PATH="`dirname \"$0\"`"
 
 #directory of containing client folders
 clientDirectory="/mnt/clients"
@@ -20,14 +17,22 @@ clientDirectory="/mnt/clients"
 #mapping file
 map="/mnt/config/map.txt"
 
+#log file
+log="~/schwab.log"
+
+#directory of files to sort
+if [ ! -d "${1}" ]; then
+	echo "Could not find ${1}"
+	exit 0
+fi
+
 #mapping file
 if [ ! -e $map ]; then
 	echo "Could not find $map"
 	exit 0
 fi
 
-#log file
-log="~/schwab.log"
+./${THIS_PATH}/testmap.sh $clientDirectory $map
 
 if [ ! -e $log ]; then
     touch $log

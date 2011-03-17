@@ -48,3 +48,5 @@ do
         echo "Unable to check $i"
     esac
 done
+
+echo "Complete"
