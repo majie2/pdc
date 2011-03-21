@@ -9,10 +9,10 @@
 # args 1:
 
 # invoice file
-INVOICE="${1}/invoices.pdf"
+INVOICE="${1}/Invoice.pdf"
 
 # invoice file
-STATEMENT="${1}/statements.pdf"
+STATEMENT="${1}/Statement.pdf"
 
 # check if the directory exists
 if [ ! -d "$1" ]; then
@@ -35,8 +35,8 @@ if [ "$word" = "Plan Invoices" ]; then
     ${THIS_PATH}/splitPDF.sh ${STATEMENT} ${1}/statements 2
 
     # construct the invoices from pdfs in Excel
-    if [ -d ${1}/excel ]; then
-	    echo "building client invoices..."
+    if [ -d ${1}/Excel ]; then
+	    echo "Building client invoices..."
 
 	    # create final directory if it doesn't already exist
 	    if [ ! -d ${1}/final ]; then
@@ -45,7 +45,7 @@ if [ "$word" = "Plan Invoices" ]; then
 
 	    # for each pdf in Excel, build final pdf
 	    shopt -s nullglob
-	    for f in ${1}/excel/*.pdf
+	    for f in ${1}/Excel/*.pdf
 	    do
 		    fileName=`echo ${f##*/}`
 
@@ -57,33 +57,33 @@ if [ "$word" = "Plan Invoices" ]; then
 		    fi
 
 		    # if the attachment file exists for this client, add to queue
-		    if [ -e ${1}/attachment/$fileName ]; then
+		    if [ -e ${1}/Attachment/$fileName ]; then
 			    outAttachment=`echo ${1}/Attachment/$fileName`
 		    else
 			    outAttachment=``
 		    fi
      
 		    # combine all files added to queue and invoice page into final pdf
-		    echo "${fileName} final..."
-		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${1}/excel/${fileName} ${outStatement} ${outAttachment}
+		    echo "${fileName}"
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${1}/Excel/${fileName} ${outStatement} ${outAttachment}
 	    done
     fi
 fi
 
 if [ "$word" = "File Copy" ]; then
     # split source pdf documents, uses the splitPDF script
-    ${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 2
+    ${THIS_PATH}/splitPDFt.sh ${INVOICE} ${1}/invoices 2
     
     # build file copy invoice
-    if [ -d ${1}/excel ]; then
-	    echo "building file copy invoices..."
+    if [ -d ${1}/Excel ]; then
+	    echo "Building file copy invoices..."
 
 	    if [ ! -d ${1}/file_copy ]; then
 		    mkdir ${1}/file_copy
 	    fi
 
 	    shopt -s nullglob
-	    for f in ${1}/excel/*.pdf
+	    for f in ${1}/Excel/*.pdf
 	    do
 		    fileName=`echo ${f##*/}`
 
@@ -99,26 +99,26 @@ if [ "$word" = "File Copy" ]; then
 			    fcCreditMemo=``
 		    fi
 
-		    if [ -e ${1}/trusts/$fileName ]; then
-			    fcTrustInvoice=`echo ${1}/trusts/$fileName`
+		    if [ -e ${1}/invoices/TRUST/$fileName ]; then
+			    fcTrustInvoice=`echo ${1}/invoices/TRUST/$fileName`
 		    else
 			    fcTrustInvoice=``
 		    fi
 
-		    if [ -e ${1}/attachment/$fileName ]; then
-			    fcAttachment=`echo ${1}/attachment/$fileName`
+		    if [ -e ${1}/Attachment/$fileName ]; then
+			    fcAttachment=`echo ${1}/Attachment/$fileName`
 		    else
 			    fcAttachment=``
 		    fi
 
-		    if [ -e ${1}/source/$fileName ]; then
-			    fcSource=`echo ${1}/source/$fileName`
+		    if [ -e ${1}/Source/$fileName ]; then
+			    fcSource=`echo ${1}/Source/$fileName`
 		    else
 			    fcSource=``
 		    fi
 
-		    echo "${fileName} file copy..."
-		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${1}/excel/${fileName} ${fcInvoice} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcSource}
+		    echo "${fileName}"
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${1}/Excel/${fileName} ${fcInvoice} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcSource}
 	    done
     fi
 fi

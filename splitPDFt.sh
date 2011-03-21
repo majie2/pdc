@@ -1,6 +1,6 @@
 #! /bin/bash
 # author:	Josef Kelly
-# date:		Feb 11 2011
+# date:		Saint Patricks Day
 # license:	MIT
 #
 # description:
@@ -20,6 +20,22 @@
 # PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS.
 # PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS.
 # PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS.
+
+bar_width=30
+tick=0.2
+
+function paint_progressbar() {
+    local part=$1
+    local place=$((part*bar_width/$2))
+    local i
+    
+    echo -en "\r$((part*100/total))% ["
+    
+    for i in $(seq 1 $bar_width); do
+        [ "$i" -le "$place" ] && echo -n "#" || echo -n " ";
+    done
+    echo -n "]"
+}
 
 # check if the temp directory exists, if not, make it
 if [ ! -d .splittemp ]; then
@@ -42,10 +58,13 @@ if [ -e ${1} ]; then
 
 	#get the number of pages in the pdf
 	numberOfPages=`grep "Pages" ${1}.info.txt | cut -f2 -d:`
-	echo "discovered ${numberOfPages##* } pages in ${1}..."
+	total=${numberOfPages##* }
+	echo "Discovered ${numberOfPages##* } pages in ${1}"
 
 	#remove info file
 	rm ${1}.info.txt
+	
+	echo "Extracting pages..."
 
 	#extract each page
 	for (( i=1; i<=$numberOfPages; i++ ))
@@ -65,11 +84,11 @@ if [ -e ${1} ]; then
 		#is this a trust page?
 		istrust=`sed "${clientIDLineNumber}q;d" .splittemp/page_$i.txt | grep "TRUST" | cut -f2 -d' '`
 
-		echo "building ${pdfName}"
+		echo "${pdfName} ${istrust}"
 		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=$i -dLastPage=$i -sOutputFile=${2}/$istrust/${pdfName// /_}.pdf ${1}
 	done
 else
-	echo "could not find ${1}, exiting..."
+	echo "File does not exist: ${1}"
 	exit 0
 fi
 
