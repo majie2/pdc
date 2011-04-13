@@ -16,6 +16,9 @@
 # args 1: pdf file to split
 # args 2: directory for split pages
 # args 3: amount of lines to add after unique key
+# args 4: secondary key
+# args 5: case sensitive or case insensitive for secondary key
+#       : YES IT MATTERS LULZ (just pass 1 for -i switch on grep)
 
 # PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS.
 # PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS.
@@ -31,9 +34,9 @@ if [ ! -d ${2} ]; then
 	mkdir ${2}
 fi
 
-# check if trust destination exists, if not, make it
-if [ ! -d ${2}/TRUST ]; then
-	mkdir ${2}/TRUST
+# check if alternate destination exists, if not, make it
+if [ ! -d ${2}/${4} ]; then
+	mkdir ${2}/${4}
 fi
 
 if [ -e ${1} ]; then	
@@ -53,6 +56,8 @@ if [ -e ${1} ]; then
 	#extract each page
 	for (( i=1; i<=$numberOfPages; i++ ))
 	do
+	    isAlternate=""
+	    alternate=""
 		#convert pdf page to text file
 		pdftotext -f $i -l $i ${1} .splittemp/page_$i.txt
 
@@ -65,11 +70,19 @@ if [ -e ${1} ]; then
 		#extract client id
 		pdfName=`sed "${clientIDLineNumber}q;d" .splittemp/page_$i.txt | cut -f1 -d' '`
 		
-		#is this a trust page?
-		istrust=`sed "${clientIDLineNumber}q;d" .splittemp/page_$i.txt | grep "TRUST" | cut -f2 -d' '`
+		#is this an alternate page?
+		if [ "$5" ]; then
+		    isAlternate=`grep -i "${4}" .splittemp/page_$i.txt`
+		else
+		    isAlternate=`grep "${4}" .splittemp/page_$i.txt`
+		fi
+		
+		if [ "$isAlternate" ]; then
+		    alternate="${4}"
+		fi
 
-		echo "${pdfName} ${istrust}"
-		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=$i -dLastPage=$i -sOutputFile=${2}/$istrust/${pdfName// /_}.pdf ${1}
+		echo "${pdfName} ${alternate}"
+		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=$i -dLastPage=$i -sOutputFile=${2}/$alternate/${pdfName// /_}.pdf ${1}
 	done
 else
 	echo "File does not exist: ${1}"
