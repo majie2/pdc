@@ -72,7 +72,7 @@ fi
 
 if [ "$word" = "File Copy" ]; then
     # split source pdf documents, uses the splitPDF script
-    ${THIS_PATH}/splitPDFt.sh ${INVOICE} ${1}/invoices 2
+    ${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 2 TRUST
     
     # build file copy invoice
     if [ -d ${1}/Excel ]; then
