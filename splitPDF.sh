@@ -5,8 +5,6 @@
 #
 # description:
 #
-# THIS MAY OR MAY NOT STAY. DEPENDS ON OTHER STUFFS. REALLY, ONE LINE ADDITION???
-#
 # Splits a specified pdf into individual pages. Each page will be a separate pdf file.
 # Each page is named using the following convention: the page is converted into a text file. The script searches for a unique key in that text file.
 # Then the script extracts the line from the text file a specified number of lines after the unique key
@@ -19,8 +17,9 @@
 # args 4: secondary key
 # args 5: case sensitive or case insensitive for secondary key
 #       : YES IT MATTERS LULZ (just pass 1 for -i switch on grep)
+#       : qm uses 'dummy 1', 401k uses 'TRUST'
 
-# PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS.sqlit
+# PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS
 
 # check if the temp directory exists, if not, make it
 if [ ! -d .splittemp ]; then
