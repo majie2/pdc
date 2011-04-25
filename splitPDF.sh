@@ -17,7 +17,7 @@
 # args 4: secondary key
 # args 5: case sensitive or case insensitive for secondary key
 #       : YES IT MATTERS LULZ (just pass 1 for -i switch on grep)
-#       : qm uses 'dummy 1', 401k uses 'TRUST'
+#       : qm uses 'dummy 1', 401k uses 'TRUST'q
 
 # PLEASE AVOID HAVING SPACES IN THE DIRECTORY PATHS
 
