@@ -56,21 +56,22 @@ do
 		#find directory name from mapping file
 		clientDirectory=`echo $clientMap | cut -f2 -d:`
 		planDirectory=`echo $clientMap | cut -f3 -d:`
+		specialDirectory=`echo $clientMap | cut -f4 -d:`
 
 		#make sure billing directory exists
-		if [ -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing ]; then
+		if [ -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/"${specialDirectory}" ]; then
 			#make sure year directory exists, if not, create it
-			if [ ! -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3} ]; then
+			if [ ! -d ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/"${specialDirectory}"/${3} ]; then
 				echo "Creating directory ${3} for ${f##*/}"
-				mkdir ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}
+				mkdir ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/"${specialDirectory}"/${3}
 			fi
 
 			#only move the file if it doesn't exist in destination directory
-			if [ ! -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}/${2}.pdf ]; then
-				echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/Billing/${3}"
-				mv "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/${3}/${2}.pdf
+			if [ ! -e ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/"${specialDirectory}"/${3}/${2}.pdf ]; then
+				echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/"${specialDirectory}"/Billing/${3}"
+				mv "$f" ${clientsDirectory}/"${clientDirectory}"/"${planDirectory}"/Billing/"${specialDirectory}"/${3}/${2}.pdf
 			else
-				echo "${clientDirectory}/${planDirectory}/Billing/${3}/${2}.pdf already exists!!!"
+				echo "${clientDirectory}/${planDirectory}/Billing/"${specialDirectory}"/${3}/${2}.pdf already exists!!!"
 			fi
 		else
 			echo "Could not find directory for ${f##*/}"
