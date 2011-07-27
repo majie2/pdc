@@ -8,19 +8,28 @@
 #
 # args 1: directory of files containing the original billing pdfs (statements, invoices, credit memos, etc...)
 
-# declare paths to commonly used files
+# STATIC FILES
 
-# statement file
 STATEMENT="${1}/Statement.pdf"
-
-# invoice file
 INVOICE="${1}/Invoice.pdf"
-
-# invoice file
-CREDITMEMO="${1}/Credit.pdf"
-
-# invoice file
+#CREDITMEMO="${1}/Credit.pdf"
 TRUST="${1}/Trust.pdf"
+
+# STATIC DIRECTORIES
+
+INVOICES="${1}/Invoices"
+STATEMENTS="${1}/Statements"
+EXCEL="${1}/Excel"
+ATTACHMENTS="${1}/Attachment"
+DIST="${1}/Dist"
+MISC="${1}/Misc"
+SOURCE="${1}/Source"
+DUMMY="${1}/Dummy"
+CREDITMEMOS="${1}/Credit_memo"
+FINAL="${1}/Final"
+FILECOPY="${}/File_copy"
+
+# STATIC DIRECTORIES
 
 # check if the directory specified by the user exists, if it doesn't, exit
 if [ -d ${1} ]; then
@@ -36,187 +45,199 @@ THIS_PATH="`dirname \"$0\"`"
 # split source pdf documents, uses the splitPDF script
 ${THIS_PATH}/splitPDF.sh ${STATEMENT} ${1}/statements 2
 ${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 2 dummy 1
-${THIS_PATH}/splitPDF.sh ${CREDITMEMO} ${1}/credit_memos 2
-${THIS_PATH}/splitPDF.sh ${TRUST} ${1}/trusts 2
 
-# construct the invoices from pdf pages in Invoice.pdf
-if [ -d ${1}/invoices ]; then
-	echo "building client invoices..."
+echo "Type the number of your selection and press enter"
 
-	# create final directory if it doesn't already exist
-	if [ ! -d ${1}/final ]; then
-		mkdir ${1}/final
-	fi
+select word in "Plan Invoices" "File Copy"
+do
+    break
+done
 
-	# for each page/client (one page per client) in Invoice.pdf build the final billing pdf
-	shopt -s nullglob
-	for f in ${1}/invoices/*.pdf
-	do
-		fileName=`echo ${f##*/}`
+if [ "$word" = "Plan Invoices" ]; then
+    # construct the invoices from pdf pages in Invoice.pdf
+    if [ -d "${INVOICES}" ]; then
+	    echo "building client invoices..."
 
-		# if the statement file exists for this client, add to queue
-		if [ -e ${1}/statements/$fileName ]; then
-			outStatement=`echo ${1}/statements/$fileName`
-		else
-			outStatement=``
-		fi
+	    # create final directory if it doesn't already exist
+	    if [ ! -d "${FINAL}" ]; then
+		    mkdir ${FINAL}
+	    fi
 
-		# if the excel file exists for this client, add to queue
-		if [ -e ${1}/excel/$fileName ]; then
-			outExcelInvoice=`echo ${1}/Excel/$fileName`
-		else
-			outExcelInvoice=``
-		fi
+	    # for each page/client (one page per client) in Invoice.pdf build the final billing pdf
+	    shopt -s nullglob
+	    for f in ${INVOICES}/*.pdf
+	    do
+		    fileName=`echo ${f##*/}`
 
-		# if the attachment file exists for this client, add to queue
-		if [ -e ${1}/attachment/$fileName ]; then
-			outAttachment=`echo ${1}/Attachment/$fileName`
-		else
-			outAttachment=``
-		fi
- 
-		# combine all files added to queue and invoice page into final pdf
-		echo "${fileName} final..."
-		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${outStatement} ${outExcelInvoice} ${1}/invoices/${fileName} ${outAttachment}
-	done
+		    # if the statement file exists for this client, add to queue
+		    if [ -e "${STATEMENTS}/${fileName}" ]; then
+			    outStatement=`echo ${STATEMENTS}/${fileName}`
+		    else
+			    outStatement=``
+		    fi
+
+		    # if the excel file exists for this client, add to queue
+		    if [ -e "${EXCEL}/${fileName}" ]; then
+			    outExcelInvoice=`echo ${EXCEL}/${fileName}`
+		    else
+			    outExcelInvoice=``
+		    fi
+
+		    # if the attachment file exists for this client, add to queue
+		    if [ -e "${ATTACHMENTS}/${fileName}" ]; then
+			    outAttachment=`echo ${ATTACHMENTS}/${fileName}`
+		    else
+			    outAttachment=``
+		    fi
+     
+		    # combine all files added to queue and invoice page into final pdf
+		    echo "${fileName} final..."
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FINAL}/${fileName} ${outExcelInvoice} ${1}/invoices/${fileName} ${outAttachment} ${outStatement}
+	    done
+    fi
+
+    # build invoices to clients
+    if [ -d "${EXCEL}" ]; then
+	    echo "building client invoices from excel..."
+
+	    if [ ! -d "${FINAL}" ]; then
+		    mkdir ${FINAL}
+	    fi
+
+	    shopt -s nullglob
+	    for f in ${EXCEL}/*.pdf
+	    do
+		    fileName=`echo ${f##*/}`
+
+		    if [ -e "${STATEMENTS}/${fileName}" ]; then
+			    outStatement=`echo ${STATEMENTS}/${fileName}`
+		    else
+			    outStatement=``
+		    fi
+
+		    if [ -e "${ATTACHMENTS}/${fileName}" ]; then
+			    outAttachment=`echo ${ATTACHMENTS}/${fileName}`
+		    else
+			    outAttachment=``
+		    fi
+
+		    echo "${fileName} final..."
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FINAL}/${fileName} ${outStatement} ${EXCEL}/${fileName} ${outAttachment}
+	    done
+    fi
 fi
 
-# build invoices to clients
-if [ -d ${1}/Excel ]; then
-	echo "building client invoices from excel..."
+if [ "$word" = "File Copy" ]; then
+    #${THIS_PATH}/splitPDF.sh ${CREDITMEMO} ${1}/credit_memos 2
+    ${THIS_PATH}/splitPDF.sh ${TRUST} ${1}/trusts 2
 
-	if [ ! -d ${1}/final ]; then
-		mkdir ${1}/final
-	fi
+    # build file copy invoice
+    if [ -d "${INVOICES}" ]; then
+	    echo "building file copy invoices..."
 
-	shopt -s nullglob
-	for f in ${1}/Excel/*.pdf
-	do
-		fileName=`echo ${f##*/}`
+	    if [ ! -d "${FILECOPY}" ]; then
+		    mkdir ${FILECOPY}
+	    fi
 
-		if [ -e ${1}/statements/$fileName ]; then
-			outStatement=`echo ${1}/statements/$fileName`
-		else
-			outStatement=``
-		fi
+	    shopt -s nullglob
+	    for f in ${INVOICES}/*.pdf
+	    do
+		    fileName=`echo ${f##*/}`
 
-		if [ -e ${1}/attachment/$fileName ]; then
-			outAttachment=`echo ${1}/Attachment/$fileName`
-		else
-			outAttachment=``
-		fi
+		    if [ -e "${EXCEL}/${fileName}" ]; then
+			    fcExcelInvoice=`echo ${EXCEL}/${fileName}`
+		    else
+			    fcExcelInvoice=``
+		    fi
 
-		echo "${fileName} final..."
-		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${outStatement} ${1}/Excel/${fileName} ${outAttachment}
-	done
-fi
+		    if [ -e "${CREDITMEMOS}/${fileName}" ]; then
+			    fcCreditMemo=`echo ${CREDITMEMOS}/${fileName}`
+		    else
+			    fcCreditMemo=``
+		    fi
 
-# build file copy invoice
-if [ -d ${1}/invoices ]; then
-	echo "building file copy invoices..."
+		    if [ -e ${1}/trusts/$fileName ]; then
+			    fcTrustInvoice=`echo ${1}/trusts/$fileName`
+		    else
+			    fcTrustInvoice=``
+		    fi
 
-	if [ ! -d ${1}/file_copy ]; then
-		mkdir ${1}/file_copy
-	fi
+		    if [ -e "${ATTACHMENTS}/${fileName}" ]; then
+			    fcAttachment=`echo ${ATTACHMENTS}/${fileName}`
+		    else
+			    fcAttachment=``
+		    fi
 
-	shopt -s nullglob
-	for f in ${1}/invoices/*.pdf
-	do
-		fileName=`echo ${f##*/}`
+		    if [ -e "${DIST}/${fileName}" ]; then
+			    fcDistributionChecklist=`echo ${DIST}/$fileName`
+		    else
+			    fcDistributionChecklist=``
+		    fi
 
-		if [ -e ${1}/Excel/$fileName ]; then
-			fcExcelInvoice=`echo ${1}/Excel/$fileName`
-		else
-			fcExcelInvoice=``
-		fi
+		    if [ -e "${MISC}/${fileName}" ]; then
+			    fcEmail=`echo ${MISC}/${fileName}`
+		    else
+			    fcEmail=``
+		    fi
 
-		if [ -e ${1}/credit_memos/$fileName ]; then
-			fcCreditMemo=`echo ${1}/credit_memos/$fileName`
-		else
-			fcCreditMemo=``
-		fi
+		    echo "${fileName} file copy..."
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FILECOPY}/${fileName} ${fcExcelInvoice} ${INVOICES}/${fileName} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcDistributionChecklist} ${fcEmail}
+	    done
+    fi
 
-		if [ -e ${1}/trusts/$fileName ]; then
-			fcTrustInvoice=`echo ${1}/trusts/$fileName`
-		else
-			fcTrustInvoice=``
-		fi
+    # build file copy invoice
+    if [ -d "${DUMMY}" ]; then
+	    echo "building file copy invoices from excel..."
 
-		if [ -e ${1}/attachment/$fileName ]; then
-			fcAttachment=`echo ${1}/attachment/$fileName`
-		else
-			fcAttachment=``
-		fi
+	    if [ ! -d "${FILECOPY}" ]; then
+		    mkdir ${FILECOPY}
+	    fi
 
-		if [ -e ${1}/Dist/$fileName ]; then
-			fcDistributionChecklist=`echo ${1}/Dist/$fileName`
-		else
-			fcDistributionChecklist=``
-		fi
+	    shopt -s nullglob
+	    for f in ${DUMMY}/*.pdf
+	    do
+		    fileName=`echo ${f##*/}`
 
-		if [ -e ${1}/Misc/$fileName ]; then
-			fcEmail=`echo ${1}/Misc/$fileName`
-		else
-			fcEmail=``
-		fi
+		    if [ -e "${EXCEL}/${fileName}" ]; then
+			    fcExcel=`echo ${EXCEL}/${fileName}`
+		    else
+			    fcExcel=``
+		    fi
 
-		echo "${fileName} file copy..."
-		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${fcExcelInvoice} ${1}/invoices/${fileName} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcDistributionChecklist} ${fcEmail}
-	done
-fi
+		    if [ -e "${CREDITMEMOS}/${fileName}" ]; then
+			    fcCreditMemo=`echo ${CREDITMEMOS}/${fileName}`
+		    else
+			    fcCreditMemo=``
+		    fi
 
-# build file copy invoice
-if [ -d ${1}/dummy ]; then
-	echo "building file copy invoices from excel..."
+		    if [ -e ${1}/trusts/$fileName ]; then
+			    fcTrustInvoice=`echo ${1}/trusts/$fileName`
+		    else
+			    fcTrustInvoice=``
+		    fi
 
-	if [ ! -d ${1}/file_copy ]; then
-		mkdir ${1}/file_copy
-	fi
+		    if [ -e "${ATTACHMENTS}/${fileName}" ]; then
+			    fcAttachment=`echo ${ATTACHMENTS}/${fileName}`
+		    else
+			    fcAttachment=``
+		    fi
 
-	shopt -s nullglob
-	for f in ${1}/dummy/*.pdf
-	do
-		fileName=`echo ${f##*/}`
+		    if [ -e "${DIST}/${fileName}" ]; then
+			    fcDistributionChecklist=`echo ${DIST}/${fileName}`
+		    else
+			    fcDistributionChecklist=``
+		    fi
 
-		if [ -e ${1}/Excel/$fileName ]; then
-			fcExcel=`echo ${1}/Excel/$fileName`
-		else
-			fcExcel=``
-		fi
+		    if [ -e "${MISC}/${fileName}" ]; then
+			    fcEmail=`echo ${MISC}/${fileName}`
+		    else
+			    fcEmail=``
+		    fi
 
-		if [ -e ${1}/credit_memos/$fileName ]; then
-			fcCreditMemo=`echo ${1}/credit_memos/$fileName`
-		else
-			fcCreditMemo=``
-		fi
-
-		if [ -e ${1}/trusts/$fileName ]; then
-			fcTrustInvoice=`echo ${1}/trusts/$fileName`
-		else
-			fcTrustInvoice=``
-		fi
-
-		if [ -e ${1}/attachment/$fileName ]; then
-			fcAttachment=`echo ${1}/attachment/$fileName`
-		else
-			fcAttachment=``
-		fi
-
-		if [ -e ${1}/Dist/$fileName ]; then
-			fcDistributionChecklist=`echo ${1}/Dist/$fileName`
-		else
-			fcDistributionChecklist=``
-		fi
-
-		if [ -e ${1}/Misc/$fileName ]; then
-			fcEmail=`echo ${1}/Misc/$fileName`
-		else
-			fcEmail=``
-		fi
-
-		echo "${fileName} file copy..."
-		gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${fcExcel} ${1}/dummy/${fileName} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcDistributionChecklist} ${fcEmail}
-	done
+		    echo "${fileName} file copy..."
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FILECOPY}/${fileName} ${fcExcel} ${DUMMY}/${fileName} ${fcCreditMemo} ${fcTrustInvoice} ${fcAttachment} ${fcDistributionChecklist} ${fcEmail}
+	    done
+    fi
 fi
 
 echo "cleaning up..."

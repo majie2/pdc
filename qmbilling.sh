@@ -8,11 +8,21 @@
 #
 # args 1:
 
-# invoice file
-INVOICE="${1}/Invoice.pdf"
+# STATIC FILES
 
-# invoice file
+INVOICE="${1}/Invoice.pdf"
 STATEMENT="${1}/Statement.pdf"
+
+# STATIC DIRECTORIES
+
+INVOICES="${1}/Invoices"
+STATEMENTS="${1}/Statements"
+EXCEL="${1}/Excel"
+ATTACHMENTS="${1}/Attachment"
+SOURCE="${1}/Source"
+CREDITMEMO="${1}/Credit_memo"
+FINAL="${1}/Final"
+FILECOPY="${}/File_copy"
 
 # check if the directory exists
 if [ ! -d "$1" ]; then
@@ -35,37 +45,37 @@ if [ "$word" = "Plan Invoices" ]; then
     ${THIS_PATH}/splitPDF.sh ${STATEMENT} ${1}/statements 2
 
     # construct the invoices from pdfs in Excel
-    if [ -d ${1}/Excel ]; then
+    if [ -d "${EXCEL}" ]; then
 	    echo "Building client invoices..."
 
 	    # create final directory if it doesn't already exist
-	    if [ ! -d ${1}/final ]; then
-		    mkdir ${1}/final
+	    if [ ! -d "${FINAL}" ]; then
+		    mkdir ${FINAL}
 	    fi
 
 	    # for each pdf in Excel, build final pdf
 	    shopt -s nullglob
-	    for f in ${1}/Excel/*.pdf
+	    for f in ${EXCEL}/*.pdf
 	    do
 		    fileName=`echo ${f##*/}`
 
 		    # if the statement file exists for this client, add to queue
-		    if [ -e ${1}/statements/$fileName ]; then
-			    outStatement=`echo ${1}/statements/$fileName`
+		    if [ -e "${STATEMENTS}/${fileName}" ]; then
+			    outStatement=`echo ${STATEMENTS}/${fileName}`
 		    else
 			    outStatement=``
 		    fi
 
 		    # if the attachment file exists for this client, add to queue
-		    if [ -e ${1}/Attachment/$fileName ]; then
-			    outAttachment=`echo ${1}/Attachment/$fileName`
+		    if [ -e "${ATTACHMENTS}/${fileName}" ]; then
+			    outAttachment=`echo ${ATTACHMENTS}/${fileName}`
 		    else
 			    outAttachment=``
 		    fi
      
 		    # combine all files added to queue and invoice page into final pdf
 		    echo "${fileName}"
-		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${outStatement} ${1}/Excel/${fileName} ${outAttachment}
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FINAL}/${fileName} ${outStatement} ${EXCEL}/${fileName} ${outAttachment}
 	    done
     fi
 fi
@@ -75,50 +85,51 @@ if [ "$word" = "File Copy" ]; then
     ${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 2 TRUST
     
     # build file copy invoice
-    if [ -d ${1}/Excel ]; then
+    if [ -d "${EXCEL}" ]; then
 	    echo "Building file copy invoices..."
 
-	    if [ ! -d ${1}/file_copy ]; then
-		    mkdir ${1}/file_copy
+	    if [ ! -d "${FILECOPY}" ]; then
+		    mkdir ${FILECOPY}
 	    fi
 
 	    shopt -s nullglob
-	    for f in ${1}/Excel/*.pdf
+	    for f in ${EXCEL}/*.pdf
 	    do
 		    fileName=`echo ${f##*/}`
 
-		    if [ -e ${1}/invoices/$fileName ]; then
-			    fcInvoice=`echo ${1}/invoices/$fileName`
+		    if [ -e "${INVOICES}/${fileName}" ]; then
+			    fcInvoice=`echo ${INVOICES}/${fileName}`
 		    else
 			    fcInvoice=``
 		    fi
 
-		    if [ -e ${1}/credit_memos/$fileName ]; then
-			    fcCreditMemo=`echo ${1}/credit_memos/$fileName`
+		    if [ -e "${CREDITMEMO}/${fileName}" ]; then
+			    fcCreditMemo=`echo ${CREDITMEMO}/${fileName}`
 		    else
 			    fcCreditMemo=``
 		    fi
 
+            #this cannot change since it relies on splitPDF.sh
 		    if [ -e ${1}/invoices/TRUST/$fileName ]; then
 			    fcTrustInvoice=`echo ${1}/invoices/TRUST/$fileName`
 		    else
 			    fcTrustInvoice=``
 		    fi
 
-		    if [ -e ${1}/Attachment/$fileName ]; then
-			    fcAttachment=`echo ${1}/Attachment/$fileName`
+		    if [ -e "${ATTACHMENTS}/${fileName}" ]; then
+			    fcAttachment=`echo ${ATTACHMENTS}/${fileName}`
 		    else
 			    fcAttachment=``
 		    fi
 
-		    if [ -e ${1}/Source/$fileName ]; then
-			    fcSource=`echo ${1}/Source/$fileName`
+		    if [ -e "${SOURCE}/${fileName}" ]; then
+			    fcSource=`echo ${SOURCE}/${fileName}`
 		    else
 			    fcSource=``
 		    fi
 
 		    echo "${fileName}"
-		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${1}/Excel/${fileName} ${fcInvoice} ${fcTrustInvoice} ${fcCreditMemo} ${fcAttachment} ${fcSource}
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FILECOPY}/${fileName} ${EXCEL}/${fileName} ${fcInvoice} ${fcTrustInvoice} ${fcCreditMemo} ${fcAttachment} ${fcSource}
 	    done
     fi
 fi
