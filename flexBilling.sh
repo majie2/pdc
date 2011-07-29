@@ -9,10 +9,10 @@
 # args: directory of files
 
 # statement file
-STATEMENT="${1}/statements.pdf"
+STATEMENT="${1}/Statement.pdf"
 
 # invoice file
-INVOICE="${1}/invoices.pdf"
+INVOICE="${1}/Invoice.pdf"
 
 # check if the directory exists
 if [ -d ${1} ]; then
@@ -108,6 +108,10 @@ if [ -d ${1}/invoices ]; then
 	if [ ! -d ${1}/final ]; then
 		mkdir ${1}/final
 	fi
+	
+	if [ ! -d ${1}/file_copy ]; then
+		mkdir ${1}/file_copy
+	fi
 
 	shopt -s nullglob
 	for f in ${1}/invoices/*.pdf
@@ -116,7 +120,7 @@ if [ -d ${1}/invoices ]; then
 		fileNameStripped=`echo ${fileName} | cut -f1-2 -d.`
 		isTerm="${fileNameStripped}.TERM"
 
-		if [ -e ${1}/details/$isTerm ]; then
+		if [ -e ${1}/Detail/$isTerm ]; then
 			echo "${fileNameStripped} is terminated"
 		else
 			if [ -e ${1}/statements/$fileName ]; then
@@ -125,32 +129,46 @@ if [ -d ${1}/invoices ]; then
 				outStatement=``
 			fi
 
-			if [ -e ${1}/details/$fileName ]; then
-				outDetail=`echo ${1}/details/$fileName`
+			if [ -e ${1}/Detail/$fileName ]; then
+				outDetail=`echo ${1}/Detail/$fileName`
 			else
 				outDetail=``
 			fi
 
-			if [ -e ${1}/coverpages/$fileName ]; then
-				outCoverpage=`echo ${1}/coverpages/$fileName`
+			if [ -e ${1}/Coverpage/$fileName ]; then
+				outCoverpage=`echo ${1}/Coverpage/$fileName`
 			else
 				outCoverpage=``
 			fi
 
-			if [ -e ${1}/debitcard/$fileName ]; then
-				outDebit=`echo ${1}/debitcard/$fileName`
+			if [ -e ${1}/Debitcard/$fileName ]; then
+				outDebit=`echo ${1}/Debitcard/$fileName`
 			else
 				outDebit=``
 			fi
 
-			if [ -e ${1}/limited/$fileName ]; then
-				outLimited=`echo ${1}/limited/$fileName`
+			if [ -e ${1}/Limited/$fileName ]; then
+				outLimited=`echo ${1}/Limited/$fileName`
 			else
 				outLimited=``
 			fi
+			
+			if [ -e ${1}/Credit_memo/$fileName ]; then
+				outCreditMemo=`echo ${1}/Credit_memo/$fileName`
+			else
+				outCreditMemo=``
+			fi
+			
+			if [ -e ${1}/Misc/$fileName ]; then
+				outMisc=`echo ${1}/Misc/$fileName`
+			else
+				outMisc=``
+			fi
 
 			echo "${fileName} final..."
-			gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${outStatement} ${1}/invoices/${fileName} ${outCoverpage} ${outDetail} ${outLimited} ${outDebit}
+			gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/final/${fileName} ${1}/invoices/${fileName} ${outCoverpage} ${outDetail} ${outLimited} ${outDebit} ${outStatement}
+			echo "${fileName} file copy..."
+			gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${1}/file_copy/${fileName} ${1}/invoices/${fileName} ${outCoverpage} ${outDetail} ${outLimited} ${outDebit} ${outCreditMemo} ${outMisc}
 		fi
 	done
 fi
