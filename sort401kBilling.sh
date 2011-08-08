@@ -7,14 +7,14 @@
 # Sorts the file copy billing pdf invoices in their respective client folders
 #
 # args 1: mapping file, maps client name in pdf to folder name
-#  note : each line must be formatted like "CLIENT.PLANTYPE:CLIENTFOLDER:PLANFOLDER"
+# note  : each line must be formatted like "CLIENT.PLANTYPE:CLIENTFOLDER:PLANFOLDER"
 # args 2: name for final pdf
 # args 3: current year
 
 #directory containing client folders
 clientsDirectory="/mnt/clients"
 #directory of final pdfs to sort
-finalDirectory="/mnt/billing_401k/file_copy"
+finalDirectory="/mnt/billing_401k/File_copy"
 
 #mapping file
 if [ ! -e "${1}" ]; then

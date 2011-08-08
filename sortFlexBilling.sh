@@ -7,14 +7,14 @@
 # Sorts the flex billing pdfs into their respective client folders
 #
 # args 1: mapping file, maps client name in pdf to folder name
-#  note : each line must be formatted like "CLIENT.PLANTYPE:CLIENTFOLDER:PLANFOLDER"
+# note  : each line must be formatted like "CLIENT.PLANTYPE:CLIENTFOLDER:PLANFOLDER"
 # args 2: name for final pdf
 # args 3: current year
 
 #directory containing client folders
 clientsDirectory="/mnt/flex"
 #directory of final pdfs to sort
-finalDirectory="/mnt/billing/final"
+finalDirectory="/mnt/billing/File_copy"
 
 #mapping file
 if [ ! -e "${1}" ]; then
