@@ -3,7 +3,7 @@
 # date:		February 11 2011
 # license:	MIT
 #
-# description:
+# description: a
 # Generates the final and file copy billing pdfs for 401k clients
 #
 # args 1: directory of files containing the original billing pdfs (statements, invoices, credit memos, etc...)
@@ -27,7 +27,7 @@ SOURCE="${1}/Source"
 DUMMY="${1}/Dummy"
 CREDITMEMOS="${1}/Credit_memo"
 FINAL="${1}/Final"
-FILECOPY="${}/File_copy"
+FILECOPY="${1}/File_copy"
 
 # STATIC DIRECTORIES
 
@@ -43,8 +43,8 @@ fi
 THIS_PATH="`dirname \"$0\"`"
 
 # split source pdf documents, uses the splitPDF script
-${THIS_PATH}/splitPDF.sh ${STATEMENT} ${1}/statements 2
-${THIS_PATH}/splitPDF.sh ${INVOICE} ${1}/invoices 2 dummy 1
+${THIS_PATH}/splitPDF.sh ${STATEMENT} ${STATEMENTS} 2
+${THIS_PATH}/splitPDF.sh ${INVOICE} ${INVOICES} 2 dummy 1
 
 echo "Type the number of your selection and press enter"
 
