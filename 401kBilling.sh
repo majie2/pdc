@@ -92,7 +92,7 @@ if [ "$word" = "Plan Invoices" ]; then
      
 		    # combine all files added to queue and invoice page into final pdf
 		    echo "${fileName} final..."
-		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FINAL}/${fileName} ${outExcelInvoice} ${1}/invoices/${fileName} ${outAttachment} ${outStatement}
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FINAL}/${fileName} ${outExcelInvoice} ${INVOICES}/${fileName} ${outAttachment} ${outStatement}
 	    done
     fi
 
@@ -122,7 +122,7 @@ if [ "$word" = "Plan Invoices" ]; then
 		    fi
 
 		    echo "${fileName} final..."
-		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FINAL}/${fileName} ${outStatement} ${EXCEL}/${fileName} ${outAttachment}
+		    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${FINAL}/${fileName} ${EXCEL}/${fileName} ${outAttachment} ${outStatement}
 	    done
     fi
 fi
