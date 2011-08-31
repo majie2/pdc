@@ -11,7 +11,7 @@
 BILLINGDIR="/mnt/billing"
 
 # invoice file
-INVOICE="${BILLINGDIR}/invoices.pdf"
+INVOICE="${BILLINGDIR}/Invoice.pdf"
 
 if [ ! -e ${1} ]; then
 	exit 0
