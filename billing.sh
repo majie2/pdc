@@ -21,6 +21,9 @@ STATEMENT="Statement.pdf"
 INVOICE="Invoice.pdf"
 TRUST="Trust.pdf"
 
+# config files
+PD_SORT_CONFIG="config/401kSortMap.txt"
+
 # specific directories
 INVOICES="Invoices"
 STATEMENTS="Statements"
@@ -35,7 +38,7 @@ CREDITMEMOS="Credit_memo"
 FINAL="Final"
 FILECOPY="File_copy"
 
-menu_prompt="\n+++ MENU +++\nType the number of your selection and press enter"
+clear
 
 echo -e "\n##################################################"
 echo "#                                                #"
@@ -47,10 +50,14 @@ echo "# version : 2.0                                  #"
 echo "#                                                #"
 echo "##################################################"
 
-menu () {
-    echo -e ${menu_prompt}
+menu_prompt () {
+    echo -e "\nmenu: ${1}\nType the number of your selection and press enter\n"
+}
 
-    select word in "401(k) Billing" "Flexible Benefits Billing"
+menu () {
+    menu_prompt "Main"
+
+    select word in "401(k) Billing" "QM 401(k) Billing" "Flexible Benefits Billing" "Sort 401(k)" "Sort Flexible Benefits" "Edit 401(k) Sort Map"
     do
         break
     done
@@ -62,11 +69,26 @@ menu () {
     if [ "$word" = "Flexible Benefits Billing" ]; then
         bd_billing
     fi
+    
+    if [ "$word" = "Edit 401(k) Sort Map" ]; then
+        edit_file ${PD}/${PD_SORT_CONFIG}
+    fi
 }
 
-# parameters:
-# $1 - actual size
-# $2 - final size
+edit_file () {
+    if [ -e ${1} ]; then
+        echo "Editing ${1}"
+        nano ${1}
+    else
+        echo -e "File not found: ${1}\nPlease check"
+    fi
+    
+    menu
+}
+
+# draws a progress bar
+# arg 1 : current size of bar
+# arg 2 : final size of bar
 draw_progressbar() {
     local part=$1
     local place=$((part*bar_width/$2))
@@ -80,12 +102,12 @@ draw_progressbar() {
     echo -n "]"
 }
 
-# expects a few arguments
-# arg 1 : filename
-# arg 2 : directory to find everything
-# arg 3 : directory to place pdf
+# builds a pdf from the other pdf files specified
+# arg 1 : filename (used for finding existing pdfs and naming built pdf)
+# arg 2 : directory to find and place pdfs
+# arg 3 : directory to place pdf (either final or file copy)
 build_pdf () {
-    fileName=`echo ${1##*/}`
+    local fileName=$(echo ${1##*/})
     
     if [ -e "${2}/${INVOICES}/${fileName}" ]; then
 	    render_invoice=`echo ${2}/${INVOICES}/${fileName}`
@@ -165,10 +187,7 @@ bd_billing () {
 }
 
 pdc_billing () {
-    echo "pdc billing"
-
     # split source pdf documents
-    # TODO check if these files were already created
     
     if [ -e "${PD}/${STATEMENT}.info.txt" ]; then
         created=`grep "CreationDate" "${PD}/${STATEMENT}.info.txt"`
@@ -209,7 +228,7 @@ pdc_billing () {
         ${THIS_PATH}/splitPDF.sh "${PD}/${TRUST}" "${PD}/${TRUSTS}" 2
     fi
 
-    echo -e ${menu_prompt}
+    menu_prompt "401(k) Billing"
     
     select word in "Final" "File Copy" "Both"
     do
