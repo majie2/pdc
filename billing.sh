@@ -38,6 +38,13 @@ CREDITMEMOS="Credit_memo"
 FINAL="Final"
 FILECOPY="File_copy"
 
+# system variables
+BOLD_ON="\033[1m"
+BOLD_OFF="\033[0m"
+RED='\E[31;47m'
+BLUE='\E[36;40m'
+GREEN='\E[32;40m'
+
 clear
 
 echo -e "\n##################################################"
@@ -51,13 +58,17 @@ echo "#                                                #"
 echo "##################################################"
 
 menu_prompt () {
-    echo -e "\nmenu: ${1}\nType the number of your selection and press enter\n"
+    echo -ne $GREEN
+    echo -e "\n${BOLD_ON}${1}${BOLD_OFF}"
+    echo -ne $BLUE
+    echo -e "Type the number of your selection and press enter\n"
+    tput sgr0
 }
 
 menu () {
-    menu_prompt "Main"
+    menu_prompt "Main menu"
 
-    select word in "401(k) Billing" "QM 401(k) Billing" "Flexible Benefits Billing" "Sort 401(k)" "Sort Flexible Benefits" "Edit 401(k) Sort Map"
+    select word in "401(k) Billing" "QM 401(k) Billing" "Flexible Benefits Billing" "Sort 401(k)" "Sort Flexible Benefits" "Edit 401(k) Sort Map" "Help"
     do
         break
     done
@@ -73,14 +84,44 @@ menu () {
     if [ "$word" = "Edit 401(k) Sort Map" ]; then
         edit_file ${PD}/${PD_SORT_CONFIG}
     fi
+    
+    if [ "$word" = "Help" ]; then
+        help_menu
+    fi
+}
+
+help_menu () {
+    menu_prompt "Help menu"
+    
+    select word in "Colors" "Back to Main menu"
+    do
+        break
+    done
+    
+    if [ "$word" = "Colors" ]; then
+        echo -e $GREEN
+        echo -e "${BOLD_ON}This is a menu title${BOLD_OFF}"
+        echo -e $RED
+        echo -e "${BOLD_ON}This is an error message${BOLD_OFF}"
+        echo -e $BLUE
+        echo "This is an explaination message. I can offer help about an action or remind you to do something"
+        tput sgr0
+        help_menu
+    fi
+    
+    menu
 }
 
 edit_file () {
     if [ -e ${1} ]; then
-        echo "Editing ${1}"
+        echo -e "\nOpening with nano: ${1}"
         nano ${1}
     else
-        echo -e "File not found: ${1}\nPlease check"
+        echo -ne ${RED}
+        echo -e "\n${BOLD_ON}File not found:${BOLD_OFF} ${1}"
+        echo -ne ${BLUE}
+        echo "Did the file get renamed, moved or deleted?"
+        tput sgr0
     fi
     
     menu
@@ -89,7 +130,7 @@ edit_file () {
 # draws a progress bar
 # arg 1 : current size of bar
 # arg 2 : final size of bar
-draw_progressbar() {
+draw_progressbar () {
     local part=$1
     local place=$((part*bar_width/$2))
     local i
@@ -292,6 +333,17 @@ pdc_billing () {
 }
 
 check_directories () {
+    for d in "${PD}/${EXCEL}" "${PD}/${ATTACHMENTS}" "${PD}/${DIST}" "${PD}/${MISC}"
+    do
+        if [ ! -d "${d}" ]; then
+            echo -ne ${RED}
+            echo -e "\n${BOLD_ON}Directory not found:${BOLD_OFF} ${d}"
+            echo -ne ${BLUE}
+            echo "Did the directory get renamed, moved or deleted?"
+            tput sgr0
+        fi
+    done
+    
     if [ ! -d "${PD}/${FINAL}" ]; then
 	    mkdir "${PD}/${FINAL}"
     fi
