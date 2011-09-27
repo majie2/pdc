@@ -107,7 +107,7 @@ menu () {
         read -p "Do you want to proceed [y/n]? "
         
         if [ $REPLY = "y" ]; then
-            rm ${PD}/${FINAL}/*.pdf
+            #rm ${PD}/${FINAL}/*.pdf
             cp ${PD}/${QMFINAL}/*.pdf ${PD}/${FINAL}
         fi
     fi
@@ -367,10 +367,6 @@ qm_billing () {
     do
         break
     done
-    
-    echo $word
-    
-    exit 0
     
     shopt -s nullglob
     
