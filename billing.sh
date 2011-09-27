@@ -368,6 +368,10 @@ qm_billing () {
         break
     done
     
+    echo $word
+    
+    exit 0
+    
     shopt -s nullglob
     
     amount=`ls -l ${PD}/${EXCEL} | wc -l`
