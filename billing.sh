@@ -11,10 +11,11 @@ THIS_PATH="`dirname \"$0\"`"
 bar_width=50
 
 # billing directories
-#BD="/mnt/billing"
-#PD="/mnt/billing_401k"
+BD="/mnt/billing"
+PD="/mnt/billing_401k"
 
-PD="/home/josef/documents/billing_pdc"
+#PD="/home/josef/documents/billing_pdc"
+CLIENTS="/mnt/clients"
 
 # pdf names
 STATEMENT="Statement.pdf"
@@ -37,6 +38,8 @@ TRUSTS="trust"
 CREDITMEMOS="Credit_memo"
 FINAL="Final"
 FILECOPY="File_copy"
+QMFINAL="QM_Final"
+QMFILECOPY="QM_File_copy"
 
 # system variables
 BOLD_ON="\033[1m"
@@ -68,13 +71,17 @@ menu_prompt () {
 menu () {
     menu_prompt "Main menu"
 
-    select word in "401(k) Billing" "QM 401(k) Billing" "Flexible Benefits Billing" "Sort 401(k)" "Sort Flexible Benefits" "Edit 401(k) Sort Map" "Help"
+    select word in "401(k) Billing" "QM Billing" "Sort 401(k)" "Copy QM Final to Final" "Edit 401(k) Sort Map" "Help" "Exit"
     do
         break
     done
     
     if [ "$word" = "401(k) Billing" ]; then
         pdc_billing
+    fi
+    
+    if [ "$word" = "QM Billing" ]; then
+        qm_billing
     fi
     
     if [ "$word" = "Flexible Benefits Billing" ]; then
@@ -85,15 +92,37 @@ menu () {
         edit_file ${PD}/${PD_SORT_CONFIG}
     fi
     
+    if [ "$word" = "Sort 401(k)" ]; then
+        sort_pd ${PD}/${PD_SORT_CONFIG}
+    fi
+    
     if [ "$word" = "Help" ]; then
         help_menu
     fi
+    
+    if [ "$word" = "Copy QM Final to Final" ]; then
+        echo -e $RED
+        echo -e "${BOLD_ON}Copying QM final pdfs to the final folder will remove any existing files in the final folder.${BOLD_OFF}"
+        tput sgr0
+        read -p "Do you want to proceed [y/n]? "
+        
+        if [ $REPLY = "y" ]; then
+            rm ${PD}/${FINAL}/*.pdf
+            cp ${PD}/${QMFINAL}/*.pdf ${PD}/${FINAL}
+        fi
+    fi
+    
+    if [ "$word" = "Exit" ]; then
+        exit 0
+    fi
+    
+    menu
 }
 
 help_menu () {
     menu_prompt "Help menu"
     
-    select word in "Colors" "Back to Main menu"
+    select word in "Colors" "Editing Files" "Back to Main menu"
     do
         break
     done
@@ -109,12 +138,16 @@ help_menu () {
         help_menu
     fi
     
-    menu
+    if [ "$word" = "Editing Files" ]; then
+        echo -e $BLUE
+        echo -e "Selecting a menu option to edit a file will automatically open the file with nano.\nTo save changes in nano, press ${BOLD_ON}CTRL-X${BOLD_OFF}${BLUE}, followed by ${BOLD_ON}Y${BOLD_OFF}${BLUE} and finally ${BOLD_ON}ENTER${BOLD_OFF}${BLUE}.\nTo exit nano without saving changes, press ${BOLD_ON}CTRL-X${BOLD_OFF}${BLUE}, followed by ${BOLD_ON}N${BLUE}."
+        tput sgr0
+        help_menu
+    fi
 }
 
 edit_file () {
     if [ -e ${1} ]; then
-        echo -e "\nOpening with nano: ${1}"
         nano ${1}
     else
         echo -ne ${RED}
@@ -123,8 +156,6 @@ edit_file () {
         echo "Did the file get renamed, moved or deleted?"
         tput sgr0
     fi
-    
-    menu
 }
 
 # draws a progress bar
@@ -143,6 +174,96 @@ draw_progressbar () {
     echo -n "]"
 }
 
+#args 1: map
+sort_pd () {
+    echo -e $GREEN
+    echo -e "${BOLD_ON}Sorting utility${BOLD_OFF}"
+    
+    if [ ! -e "${1}" ]; then
+        echo -ne ${RED}
+        echo -e "\n${BOLD_ON}File not found:${BOLD_OFF} ${1}"
+        echo -ne ${BLUE}
+        echo "Did the file get renamed, moved or deleted?"
+        tput sgr0
+        menu
+    fi
+    
+    echo -ne $BLUE
+    echo -e "Type request and press enter.\n"
+    tput sgr0
+
+    read -p "Year (e.g. 2011): "
+    local year=$REPLY
+    
+    read -p "Date (e.g. 12-31-11): "
+    local filename=$REPLY
+    
+    local amount=`ls -l ${PD}/${FILECOPY} | wc -l`
+    count=1
+    
+    declare -a keys
+    
+    draw_progressbar ${count} ${amount}
+
+    while read line
+    do
+	    key=`echo $line | sed -e 's/ /_/g'`
+	    keys=( ${keys[@]-} $(echo "$key") )
+    done < $1
+
+    shopt -s nullglob
+    find ${PD}/${FILECOPY}/*.pdf -print0 | while read -d $'\0' f
+    do
+        let count=${count}+1
+        draw_progressbar ${count} ${amount}
+        
+	    clientName=`echo ${f##*/} | cut -f1-2 -d.`
+	    clientMap=""
+	    key=""
+
+	    for i in ${keys[@]}
+	    do
+		    key=`echo $i | sed -e 's/_/ /g' | cut -f1 -d:`
+
+		    if [ $key = $clientName ]; then
+			    clientMap=`echo "$i" | sed -e 's/_/ /g'`
+			    break
+		    fi
+	    done
+
+	    #make sure clientName is not empty
+	    if [ -n "${clientMap}" ]; then
+		    #find directory name from mapping file
+		    clientDirectory=`echo $clientMap | cut -f2 -d:`
+		    planDirectory=`echo $clientMap | cut -f3 -d:`
+		    specialDirectory=`echo $clientMap | cut -f4 -d:`
+
+		    #make sure billing directory exists
+		    if [ -d "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}" ]; then
+			    #make sure year directory exists, if not, create it
+			    if [ ! -d "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}" ]; then
+				    echo "Creating directory ${year} for ${f##*/}" >> ${PD}/sort_pd.log.txt
+				    mkdir "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}"
+			    fi
+
+			    #only move the file if it doesn't exist in destination directory
+			    if [ ! -e "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf" ]; then
+				    echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/${specialDirectory}/Billing/${year}" >> ${PD}/sort_pd.log.txt
+				    mv "${f}" "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf"
+			    else
+				    echo "${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf already exists" >> ${PD}/sort_pd.log.txt
+			    fi
+		    else
+			    echo "Could not find directory for ${f##*/}" >> ${PD}/sort_pd.log.txt
+		    fi
+	    else
+		    echo "Could not find map for ${f##*/}" >> ${PD}/sort_pd.log.txt
+	    fi
+    done
+
+    menu
+}
+
 # builds a pdf from the other pdf files specified
 # arg 1 : filename (used for finding existing pdfs and naming built pdf)
 # arg 2 : directory to find and place pdfs
@@ -151,75 +272,67 @@ build_pdf () {
     local fileName=$(echo ${1##*/})
     
     if [ -e "${2}/${INVOICES}/${fileName}" ]; then
-	    render_invoice=`echo ${2}/${INVOICES}/${fileName}`
-    else
-	    render_invoice=``
+	    local render_invoice=`echo ${2}/${INVOICES}/${fileName}`
     fi
     
     if [ -e "${2}/${STATEMENTS}/${fileName}" ]; then
-	    render_statement=`echo ${2}/${STATEMENTS}/${fileName}`
-    else
-	    render_statement=``
+	    local render_statement=`echo ${2}/${STATEMENTS}/${fileName}`
     fi
 
     if [ -e "${2}/${EXCEL}/${fileName}" ]; then
-	    render_excel=`echo ${2}/${EXCEL}/${fileName}`
-    else
-	    render_excel=``
+	    local render_excel=`echo ${2}/${EXCEL}/${fileName}`
     fi
 
     if [ -e "${2}/${ATTACHMENTS}/${fileName}" ]; then
-	    render_attachment=`echo ${2}/${ATTACHMENTS}/${fileName}`
-    else
-	    render_attachment=``
+	    local render_attachment=`echo ${2}/${ATTACHMENTS}/${fileName}`
     fi
     
     if [ -e "${2}/${CREDITMEMOS}/${fileName}" ]; then
-	    render_credit=`echo ${2}/${CREDITMEMOS}/${fileName}`
-    else
-	    render_credit=``
+	    local render_credit=`echo ${2}/${CREDITMEMOS}/${fileName}`
     fi
 
     if [ -e "${2}/${TRUSTS}/${fileName}" ]; then
-	    render_trust=`echo ${2}/${TRUSTS}/${fileName}`
-    else
-	    render_trust=``
+	    local render_trust=`echo ${2}/${TRUSTS}/${fileName}`
     fi
     
     if [ -e "${2}/${DIST}/${fileName}" ]; then
-	    render_dist=`echo ${2}/${DIST}/${fileName}`
-    else
-	    render_dist=``
+	    local render_dist=`echo ${2}/${DIST}/${fileName}`
     fi
 
     if [ -e "${2}/${MISC}/${fileName}" ]; then
-	    render_misc=`echo ${2}/${MISC}/${fileName}`
-    else
-	    render_misc=``
+	    local render_misc=`echo ${2}/${MISC}/${fileName}`
     fi
     
     if [ -e "${2}/${DUMMY}/${fileName}" ]; then
-	    render_dummy=`echo ${2}/${DUMMY}/${fileName}`
-    else
-	    render_dummy=``
+	    local render_dummy=`echo ${2}/${DUMMY}/${fileName}`
     fi
     
-    if [ "${3}" = "Final" ]; then
+    if [ -e "${2}/${SOURCE}/${fileName}" ]; then
+	    local render_source=`echo ${2}/${SOURCE}/${fileName}`
+    fi
+    
+    if [ "${3}" = "${FINAL}" ]; then
         echo "${fileName}" >> ${PD}/final.log.txt
         # render final invoice, should work fine with excel based invoices since all dummy's are moved when split
         gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_invoice} ${render_attachment} ${render_statement}
-        
-        # render final excel
-        # gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_attachment} ${render_statement}
     fi
     
-    if [ "${3}" = "File_copy" ]; then
+    if [ "${3}" = "${FILECOPY}" ]; then
         echo "${fileName}" >> ${PD}/file_copy.log.txt
         # render file copy
         gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_invoice} ${render_dummy} ${render_credit} ${render_trust} ${render_attachment} ${render_dist} ${render_misc}
-        
-        # render file copy dummy
-        # gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_dummy} ${render_credit} ${render_trust} ${render_attachment} ${render_dist} ${render_misc}
+    fi
+    
+    if [ "${3}" = "${QMFILECOPY}" ]; then
+        echo "${fileName}" >> ${PD}/file_copy_qm.log.txt
+        # render file copy
+        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_invoice} ${render_trust} ${render_credit} ${render_attachment} ${render_source}
+    fi
+    
+    if [ "${3}" = "${QMFINAL}" ]; then
+        echo "${fileName}" >> ${PD}/final_qm.log.txt
+        # render file copy
+        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_attachment} ${render_statement}
     fi
 }
 
@@ -227,47 +340,65 @@ bd_billing () {
     echo "bd billing"
 }
 
+# arguments are exactly the same as splitPDF.sh
+split_pdf () {
+    if [ -e "${1}.info.txt" ]; then
+        created=`grep "CreationDate" "${1}.info.txt"`
+        
+        echo -e "\n${1##*/} [ ${created:16} ] was already processed."
+        read -p "Do you want to process ${1##*/} again [y/n] ? "
+        
+        if [ $REPLY = "y" ]; then
+            ${THIS_PATH}/splitPDF.sh ${1} ${2} ${3} ${4}
+        fi
+    else
+        ${THIS_PATH}/splitPDF.sh ${1} ${2} ${3} ${4}
+    fi
+}
+
+qm_billing () {
+    #split source pdfs
+    split_pdf "${PD}/${STATEMENT}" "${PD}/${STATEMENTS}" 2
+    split_pdf "${PD}/${INVOICE}" "${PD}/${INVOICES}" 2 trust
+    
+    menu_prompt "QM Billing"
+    
+    select word in "Final" "File Copy" "Both"
+    do
+        break
+    done
+    
+    shopt -s nullglob
+    
+    amount=`ls -l ${PD}/${EXCEL} | wc -l`
+    let amount=${amount}-1
+    count=1
+    
+    echo -e "\nBuilding ${word} from ${EXCEL}"
+    
+    for f in ${PD}/${EXCEL}/*.pdf
+    do
+        draw_progressbar ${count} ${amount}
+        
+        if [ "$word" != "File Copy" ]; then
+            build_pdf ${f} ${PD} ${QMFINAL}
+        fi
+        
+        if [ "$word" != "Final" ]; then
+            build_pdf ${f} ${PD} ${QMFILECOPY}
+        fi
+        
+        let count=${count}+1
+    done
+    
+    echo -e "\n\nFinished QM Billing"
+}
+
 pdc_billing () {
-    # split source pdf documents
-    
-    if [ -e "${PD}/${STATEMENT}.info.txt" ]; then
-        created=`grep "CreationDate" "${PD}/${STATEMENT}.info.txt"`
-        
-        echo -e "\n${STATEMENT} was processed on ${created:13}"
-        read -p "Do you want to process ${STATEMENT} again [y/n] ? "
-        
-        if [ $REPLY = "y" ]; then
-            ${THIS_PATH}/splitPDF.sh "${PD}/${STATEMENT}" "${PD}/${STATEMENTS}" 2
-        fi
-    else
-        ${THIS_PATH}/splitPDF.sh "${PD}/${STATEMENT}" "${PD}/${STATEMENTS}" 2
-    fi
-    
-    if [ -e "${PD}/${INVOICE}.info.txt" ]; then
-        created=`grep "CreationDate" "${PD}/${INVOICE}.info.txt"`
-        
-        echo -e "\n${INVOICE} was processed on ${created:13}"
-        read -p "Do you want to process ${INVOICE} again [y/n] ? "
-        
-        if [ $REPLY = "y" ]; then
-            ${THIS_PATH}/splitPDF.sh "${PD}/${INVOICE}" "${PD}/${INVOICES}" 2 dummy 1
-        fi
-    else
-        ${THIS_PATH}/splitPDF.sh "${PD}/${INVOICE}" "${PD}/${INVOICES}" 2 dummy 1
-    fi
-    
-    if [ -e "${PD}/${TRUST}.info.txt" ]; then
-        created=`grep "CreationDate" "${PD}/${TRUST}.info.txt"`
-        
-        echo -e "\n${TRUST} was processed on ${created:13}"
-        read -p "Do you want to process ${TRUST} again [y/n] ? "
-        
-        if [ $REPLY = "y" ]; then
-            ${THIS_PATH}/splitPDF.sh "${PD}/${TRUST}" "${PD}/${TRUSTS}" 2
-        fi
-    else
-        ${THIS_PATH}/splitPDF.sh "${PD}/${TRUST}" "${PD}/${TRUSTS}" 2
-    fi
+    # split source pdfs
+    split_pdf "${PD}/${STATEMENT}" "${PD}/${STATEMENTS}" 2
+    split_pdf "${PD}/${INVOICE}" "${PD}/${INVOICES}" 2 dummy 1
+    split_pdf "${PD}/${TRUST}" "${PD}/${TRUSTS}" 2
 
     menu_prompt "401(k) Billing"
     
@@ -333,7 +464,7 @@ pdc_billing () {
 }
 
 check_directories () {
-    for d in "${PD}/${EXCEL}" "${PD}/${ATTACHMENTS}" "${PD}/${DIST}" "${PD}/${MISC}"
+    for d in "${PD}/${EXCEL}" "${PD}/${ATTACHMENTS}" "${PD}/${DIST}" "${PD}/${MISC}" "${PD}/${SOURCE}" "${PD}/${CREDITMEMOS}"
     do
         if [ ! -d "${d}" ]; then
             echo -ne ${RED}
@@ -344,13 +475,12 @@ check_directories () {
         fi
     done
     
-    if [ ! -d "${PD}/${FINAL}" ]; then
-	    mkdir "${PD}/${FINAL}"
-    fi
-    
-    if [ ! -d "${PD}/${FILECOPY}" ]; then
-	    mkdir "${PD}/${FILECOPY}"
-    fi
+    for d in "${PD}/${FINAL}" "${PD}/${FILECOPY}" "${PD}/${QMFINAL}" "${PD}/${QMFILECOPY}"
+    do
+        if [ ! -d "${d}" ]; then
+	        mkdir "${d}"
+        fi
+    done
 }
 
 check_directories
