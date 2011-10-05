@@ -35,6 +35,7 @@ MISC="Misc"
 SOURCE="Source"
 DUMMY="${INVOICES}/dummy"
 TRUSTS="trust"
+QMTRUSTS="${INVOICES}/trust"
 CREDITMEMOS="Credit_memo"
 FINAL="Final"
 FILECOPY="File_copy"
@@ -295,6 +296,10 @@ build_pdf () {
 	    local render_trust=`echo ${2}/${TRUSTS}/${fileName}`
     fi
     
+    if [ -e "${2}/${QMTRUSTS}/${fileName}" ]; then
+	    local render_qmtrust=`echo ${2}/${QMTRUSTS}/${fileName}`
+    fi
+    
     if [ -e "${2}/${DIST}/${fileName}" ]; then
 	    local render_dist=`echo ${2}/${DIST}/${fileName}`
     fi
@@ -326,7 +331,7 @@ build_pdf () {
     if [ "${3}" = "${QMFILECOPY}" ]; then
         echo "${fileName}" >> ${PD}/file_copy_qm.log.txt
         # render file copy
-        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_invoice} ${render_trust} ${render_credit} ${render_attachment} ${render_source}
+        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_attachment} ${render_invoice} ${render_qmtrust} ${render_credit} ${render_source}
     fi
     
     if [ "${3}" = "${QMFINAL}" ]; then
