@@ -3,7 +3,7 @@
 # date:		February 11 2011
 # license:	MIT
 
-VERSION=2.0
+VERSION=2.1
 
 # reference to path where this script is being run
 THIS_PATH="`dirname \"$0\"`"
