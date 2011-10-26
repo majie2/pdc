@@ -37,10 +37,16 @@ DUMMY="${INVOICES}/dummy"
 TRUSTS="trust"
 QMTRUSTS="${INVOICES}/trust"
 CREDITMEMOS="Credit_memo"
+
 FINAL="Final"
 FILECOPY="File_copy"
 QMFINAL="QM_Final"
 QMFILECOPY="QM_File_copy"
+
+DETAIL="Detail"
+COVERPAGE="Coverpage"
+LIMITED="Limited"
+DEBITCARD="Debitcard"
 
 # system variables
 BOLD_ON="\033[1m"
@@ -341,8 +347,92 @@ build_pdf () {
     fi
 }
 
+
+#I'll merge this once I fix build
+build_flex_pdf () {
+    local fileName=$(echo ${1##*/})
+		    
+    #for determining terminated files
+    local fileNameStripped=`echo ${fileName} | cut -f1-2 -d.`
+    local isTerm="${fileNameStripped}.TERM"
+    
+    if [ -e "${2}/${DETAIL}/${isTerm}" ]; then
+	    echo "${fileNameStripped} TERMINATED" >> ${2}/final_flex.log.txt
+	    echo "${fileNameStripped} TERMINATED" >> ${2}/file_copy_flex.log.txt
+    else
+        if [ -e "${2}/${INVOICES}/${fileName}" ]; then
+		    local render_invoice=`echo ${2}/${INVOICES}/${fileName}`
+	    fi
+	    
+	    if [ -e "${2}/${STATEMENTS}/${fileName}" ]; then
+		    local render_statement=`echo ${2}/${STATEMENTS}/${fileName}`
+	    fi
+
+	    if [ -e "${2}/${DETAIL}/${fileName}" ]; then
+		    local render_detail=`echo ${2}/${DETAIL}/${fileName}`
+	    fi
+
+	    if [ -e "${2}/${COVERPAGE}/${fileName}" ]; then
+		    local render_coverpage=`echo ${2}/${COVERPAGE}/${fileName}`
+	    fi
+
+	    if [ -e "${2}/${DEBITCARD}/${fileName}" ]; then
+		    local render_debitcard=`echo ${2}/${DEBITCARD}/${fileName}`
+	    fi
+
+	    if [ -e "${2}/${LIMITED}/${fileName}" ]; then
+		    local render_limited=`echo ${2}/${LIMITED}/${fileName}`
+	    fi
+	
+	    if [ -e "${2}/${CREDITMEMOS}/${fileName}" ]; then
+		    local render_creditmemo=`echo ${2}/${CREDITMEMOS}/${fileName}`
+	    fi
+	
+	    if [ -e "${2}/${MISC}/${fileName}" ]; then
+		    local render_misc=`echo ${2}/${MISC}/${fileName}`
+	    fi
+
+	    echo "${fileName}" >> ${2}/final_flex.log.txt
+	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debit} ${render_statement}
+	    echo "${fileName}" >> ${2}/file_copy_flex.log.txt
+	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debit} ${redner_creditmemo} ${render_memo}
+    fi
+}
+
 bd_billing () {
-    echo "bd billing"
+    split_flex_pdf "${BD}/${STATEMENT}" "${BD}/${STATEMENTS}"
+    split_flex_pdf "${BD}/${INVOICE}" "${BD}/${INVOICES}"
+
+    shopt -s nullglob
+    
+    amount=`ls -l ${BD}/${EXCEL} | wc -l`
+    let amount=${amount}-1
+    count=1
+    
+    for f in ${BD}/${INVOICES}/*.pdf
+    do
+	    draw_progressbar ${count} ${amount}
+	    build_flex_pdf ${f} ${BD}
+	    let count=${count}+1
+    done
+
+    echo -e "\n\nFinished Flex Billing"
+}
+
+# arguments are exactly the same as splitFlexPDF.sh
+split_flex_pdf () {
+    if [ -e "${1}.info.txt" ]; then
+        created=`grep "CreationDate" "${1}.info.txt"`
+        
+        echo -e "\n${1##*/} [ ${created:16} ] was already processed."
+        read -p "Do you want to process ${1##*/} again [y/n] ? "
+        
+        if [ $REPLY = "y" ]; then
+            ${THIS_PATH}/splitFlexPDF.sh ${1} ${2}
+        fi
+    else
+        ${THIS_PATH}/splitFlexPDF.sh ${1} ${2}
+    fi
 }
 
 # arguments are exactly the same as splitPDF.sh
@@ -469,7 +559,7 @@ pdc_billing () {
 }
 
 check_directories () {
-    for d in "${PD}/${EXCEL}" "${PD}/${ATTACHMENTS}" "${PD}/${DIST}" "${PD}/${MISC}" "${PD}/${SOURCE}" "${PD}/${CREDITMEMOS}"
+    for d in "${PD}" "${BD}" "${PD}/${EXCEL}" "${PD}/${ATTACHMENTS}" "${PD}/${DIST}" "${PD}/${MISC}" "${PD}/${SOURCE}" "${PD}/${CREDITMEMOS}" "${BD}/${DETAIL}" "${BD}/${COVERPAGE}" "${BD}/${LIMITED}" "${BD}/${DEBITCARD}" "${BD}/${MISC}" "${BD}/${CREDITMEMOS}"
     do
         if [ ! -d "${d}" ]; then
             echo -ne ${RED}
@@ -480,7 +570,7 @@ check_directories () {
         fi
     done
     
-    for d in "${PD}/${FINAL}" "${PD}/${FILECOPY}" "${PD}/${QMFINAL}" "${PD}/${QMFILECOPY}"
+    for d in "${PD}/${FINAL}" "${PD}/${FILECOPY}" "${PD}/${QMFINAL}" "${PD}/${QMFILECOPY}" "${BD}/${FINAL}" "${BD}/${FILECOPY}"
     do
         if [ ! -d "${d}" ]; then
 	        mkdir "${d}"
