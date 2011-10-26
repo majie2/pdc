@@ -78,7 +78,7 @@ menu_prompt () {
 menu () {
     menu_prompt "Main menu"
 
-    select word in "401(k) Billing" "QM Billing" "Sort 401(k)" "Copy QM Final to Final" "Edit 401(k) Sort Map" "Help" "Exit"
+    select word in "401(k) Billing" "QM Billing" "Flexible Benefits Billing" "Sort 401(k)" "Copy QM Final to Final" "Edit 401(k) Sort Map" "Help" "Exit"
     do
         break
     done
@@ -393,9 +393,9 @@ build_flex_pdf () {
 	    fi
 
 	    echo "${fileName}" >> ${2}/final_flex.log.txt
-	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debit} ${render_statement}
+	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${FINAL}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debit} ${render_statement}
 	    echo "${fileName}" >> ${2}/file_copy_flex.log.txt
-	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debit} ${redner_creditmemo} ${render_memo}
+	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${FILECOPY}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debit} ${redner_creditmemo} ${render_memo}
     fi
 }
 
@@ -559,7 +559,7 @@ pdc_billing () {
 }
 
 check_directories () {
-    for d in "${PD}" "${BD}" "${PD}/${EXCEL}" "${PD}/${ATTACHMENTS}" "${PD}/${DIST}" "${PD}/${MISC}" "${PD}/${SOURCE}" "${PD}/${CREDITMEMOS}" "${BD}/${DETAIL}" "${BD}/${COVERPAGE}" "${BD}/${LIMITED}" "${BD}/${DEBITCARD}" "${BD}/${MISC}" "${BD}/${CREDITMEMOS}"
+    for d in "${PD}" "${BD}" "${PD}/${EXCEL}" "${PD}/${ATTACHMENTS}" "${PD}/${DIST}" "${PD}/${MISC}" "${PD}/${SOURCE}" "${PD}/${CREDITMEMOS}" "${BD}/${DETAIL}" "${BD}/${LIMITED}" "${BD}/${DEBITCARD}" "${BD}/${MISC}" "${BD}/${CREDITMEMOS}" "${BD}/${COVERPAGE}"
     do
         if [ ! -d "${d}" ]; then
             echo -ne ${RED}
