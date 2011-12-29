@@ -14,13 +14,17 @@ bar_width=50
 BD="/mnt/billing"
 PD="/mnt/billing_401k"
 
+#for testing - keep disabled
+#BD="/home/josef/documents/billing_bd"
 #PD="/home/josef/documents/billing_pdc"
+
 CLIENTS="/mnt/clients"
 
 # pdf names
 STATEMENT="Statement.pdf"
 INVOICE="Invoice.pdf"
 TRUST="Trust.pdf"
+COMBINE="Combine.pdf"
 
 # config files
 PD_SORT_CONFIG="config/401kSortMap.txt"
@@ -78,7 +82,7 @@ menu_prompt () {
 menu () {
     menu_prompt "Main menu"
 
-    select word in "401(k) Billing" "QM Billing" "Flexible Benefits Billing" "Sort 401(k)" "Copy QM Final to Final" "Edit 401(k) Sort Map" "Help" "Exit"
+    select word in "401(k) Billing" "QM Billing" "Flexible Benefits Billing" "Sort 401(k)" "Copy QM Final to Final" "Combine QM Excel" "Edit 401(k) Sort Map" "Help" "Exit"
     do
         break
     done
@@ -105,6 +109,15 @@ menu () {
     
     if [ "$word" = "Help" ]; then
         help_menu
+    fi
+    
+    if [ "$word" = "Combine QM Excel" ]; then
+        echo -e $GREEN
+        echo -e "${BOLD_ON}Combination Utility${BOLD_OFF}"
+        echo -ne ${BLUE}
+        echo "Combining all files from ${EXCEL} to ${COMBINE}"
+        tput sgr0
+        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${PD}/${COMBINE} ${PD}/${EXCEL}/*.pdf
     fi
     
     if [ "$word" = "Copy QM Final to Final" ]; then
@@ -323,6 +336,11 @@ build_pdf () {
     fi
     
     if [ "${3}" = "${FINAL}" ]; then
+        #if excel exists do not include invoice
+        if [ -e "${2}/${EXCEL}/${fileName}" ]; then
+	        local render_invoice=`echo ""`
+        fi
+        
         echo "${fileName}" >> ${PD}/final.log.txt
         # render final invoice, should work fine with excel based invoices since all dummy's are moved when split
         gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${3}/${fileName} ${render_excel} ${render_invoice} ${render_attachment} ${render_statement}
@@ -347,8 +365,6 @@ build_pdf () {
     fi
 }
 
-
-#I'll merge this once I fix build
 build_flex_pdf () {
     local fileName=$(echo ${1##*/})
 		    
@@ -405,9 +421,11 @@ bd_billing () {
 
     shopt -s nullglob
     
-    amount=`ls -l ${BD}/${EXCEL} | wc -l`
+    amount=`ls -l ${BD}/${INVOICES} | wc -l`
     let amount=${amount}-1
     count=1
+    
+    echo -e "\nBuilding File copy & Final from ${INVOICES}"
     
     for f in ${BD}/${INVOICES}/*.pdf
     do
