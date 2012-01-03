@@ -20,6 +20,9 @@ RED='\E[31;47m'
 BLUE='\E[36;40m'
 GREEN='\E[32;40m'
 
+rm ${USER_PATH}/create_folder.log
+touch ${USER_PATH}/create_folder.log
+
 clear
 
 echo -e "\n##################################################"
@@ -43,13 +46,17 @@ menu_prompt () {
 menu () {
     menu_prompt "Main menu"
 
-    select word in "Create Folders" "Exit"
+    select word in "Create Folders" "View Log" "Exit"
     do
         break
     done
     
     if [ "$word" = "Create Folders" ]; then
         create_folders
+    fi
+    
+    if [ "$word" = "View Log" ]; then
+        nano ${USER_PATH}/create_folder.log
     fi
     
     if [ "$word" = "Exit" ]; then
