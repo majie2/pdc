@@ -7,6 +7,8 @@ VERSION=1.0
 
 # reference to path where this script is being run
 THIS_PATH="`dirname \"$0\"`"
+USER=$(whoami)
+USER_PATH="/home/${USER}"
 
 bar_width=50
 SHARE_DIR="/mnt"
@@ -90,11 +92,11 @@ create_folders () {
         then
             if [ ! -d "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" ]
             then
-                echo "creating ${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" >> "~/create_folder.log"
+                echo "creating ${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" >> ${USER_PATH}/create_folder.log
                 #mkdir "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}"
             fi
         else
-            echo "Error: ${SHARE_DIR}/${f_main}/${f}/${f_path}"
+            echo "Error: ${SHARE_DIR}/${f_main}/${f}/${f_path}" >> ${USER_PATH}/create_folder.log
         fi
         
         let count=$count+1
@@ -115,7 +117,6 @@ draw_progressbar () {
         [ "$i" -le "$place" ] && echo -n "#" || echo -n " ";
     done
     echo -n "]"
-    echo "message"
 }
 
 menu
