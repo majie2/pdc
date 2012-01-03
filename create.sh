@@ -85,13 +85,13 @@ create_folders () {
     
     for f in ${target_directories}
     do
-        #draw_progressbar $count $total
+        draw_progressbar $count $total
         if [ -d "${SHARE_DIR}/${f_main}/${f}/${f_path}" ]
         then
             if [ ! -d "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" ]
             then
-                echo "creating ${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}"
-                mkdir "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}"
+                echo "creating ${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" >> "~/create_folder.log"
+                #mkdir "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}"
             fi
         else
             echo "Error: ${SHARE_DIR}/${f_main}/${f}/${f_path}"
