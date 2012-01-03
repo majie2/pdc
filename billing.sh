@@ -1,9 +1,9 @@
 #! /bin/bash
 # author:	Josef Kelly
-# date:		February 11 2011
+# date:		January 3 2012
 # license:	MIT
 
-VERSION=2.1
+VERSION=2.2
 
 # reference to path where this script is being run
 THIS_PATH="`dirname \"$0\"`"
