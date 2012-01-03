@@ -100,7 +100,7 @@ create_folders () {
             if [ ! -d "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" ]
             then
                 echo "creating ${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" >> ${USER_PATH}/create_folder.log
-                #mkdir "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}"
+                mkdir "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}"
             fi
         else
             echo "Error: ${SHARE_DIR}/${f_main}/${f}/${f_path}" >> ${USER_PATH}/create_folder.log
