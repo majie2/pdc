@@ -3,7 +3,7 @@
 # date:		January 3 2012
 # license:	MIT
 
-VERSION=2.2
+VERSION=2.3
 
 # reference to path where this script is being run
 THIS_PATH="`dirname \"$0\"`"
@@ -13,10 +13,6 @@ bar_width=50
 # billing directories
 BD="/mnt/billing"
 PD="/mnt/billing_401k"
-
-#for testing - keep disabled
-#BD="/home/josef/documents/billing_bd"
-#PD="/home/josef/documents/billing_pdc"
 
 CLIENTS="/mnt/clients"
 
@@ -67,7 +63,7 @@ echo "# billing.sh                                     #"
 echo "#                                                #"
 echo "# author  : josef kelly                          #"
 echo "# license : mit                                  #"
-echo "# version : 2.0                                  #"
+echo "# version : ${VERSION}                                  #"
 echo "#                                                #"
 echo "##################################################"
 
