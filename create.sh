@@ -88,22 +88,38 @@ create_folders () {
     read -p "Create folder named: "
     local f_name=$REPLY
     
-    local target_directories=$(find "${SHARE_DIR}/${f_main}" -maxdepth 1 -mindepth 1 -type d -printf "%P\n")
+    local target_directories=$(find "${SHARE_DIR}/${f_main}" -maxdepth 1 -mindepth 1 -type d)
     local total=$(echo ${target_directories} | wc -w)
     local count=1
     
     for f in ${target_directories}
     do
         draw_progressbar $count $total
-        if [ -d "${SHARE_DIR}/${f_main}/${f}/${f_path}" ]
+        if [ -d "${f}/${f_path}" ]
         then
-            if [ ! -d "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" ]
+            if [ ! -d "${f}/${f_path}/${f_name}" ]
             then
-                echo "creating ${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}" >> ${USER_PATH}/create_folder.log
-                mkdir "${SHARE_DIR}/${f_main}/${f}/${f_path}/${f_name}"
+                echo "creating ${f}/${f_path}/${f_name}" >> ${USER_PATH}/create_folder.log
+                ##mkdir "${f}/${f_path}/${f_name}"
             fi
         else
-            echo "Error: ${SHARE_DIR}/${f_main}/${f}/${f_path}" >> ${USER_PATH}/create_folder.log
+            local verify=$(ls -l $f | wc -l)
+            
+                echo "Error: please select, or S for skip"
+                ls "${f}"
+                read -p "Additional folder: "
+                local f_add=$REPLY
+                
+                if [ -d "${f}/${f_add}/${f_path}" ] && [ ! "${f_add}" == "s" ]
+                then
+                    if [ ! -d "${f}/${f_add}/${f_path}/${f_name}" ]
+                    then
+                        echo "creating ${f}/${f_add}/${f_path}/${f_name}" >> ${USER_PATH}/create_folder.log
+                        ##mkdir "${f}/${f_add}/${f_path}/${f_name}"
+                    fi
+                else
+                    echo "Error: ${f}/${f_add}/${f_path}" >> ${USER_PATH}/create_folder.log
+                fi
         fi
         
         let count=$count+1
