@@ -9,6 +9,7 @@ VERSION=1.0
 THIS_PATH="`dirname \"$0\"`"
 USER=$(whoami)
 USER_PATH="/home/${USER}"
+LOGFILE="${USER_PATH}/create.sh.log"
 
 bar_width=50
 SHARE_DIR="/mnt"
@@ -20,8 +21,8 @@ RED='\E[31;47m'
 BLUE='\E[36;40m'
 GREEN='\E[32;40m'
 
-rm ${USER_PATH}/create_folder.log
-touch ${USER_PATH}/create_folder.log
+rm ${LOGFILE}
+touch ${LOGFILE}
 
 clear
 
@@ -56,7 +57,7 @@ menu () {
     fi
     
     if [ "$word" = "View Log" ]; then
-        nano ${USER_PATH}/create_folder.log
+        nano ${LOGFILE}
     fi
     
     if [ "$word" = "Exit" ]; then
@@ -67,8 +68,6 @@ menu () {
 }
 
 create_folders () {
-    echo -ne $RED
-    echo -e "${BOLD_ON}This will freak out if there are spaces in the folders your are searching for${BOLD_OFF}"
     echo -ne $BLUE
     echo -e "Type request and press enter.\n"
     tput sgr0
@@ -97,33 +96,49 @@ create_folders () {
         draw_progressbar $count $total
         if [ -d "${f}/${f_path}" ]
         then
-            if [ ! -d "${f}/${f_path}/${f_name}" ]
-            then
-                echo "creating ${f}/${f_path}/${f_name}" >> ${USER_PATH}/create_folder.log
-                ##mkdir "${f}/${f_path}/${f_name}"
-            fi
+            make_directory "${f}/${f_path}/${f_name}"
         else
             local verify=$(ls -l $f | wc -l)
             
+            if [ ${verify} -lt 5 ]
+            then
                 echo "Error: please select, or S for skip"
                 ls "${f}"
                 read -p "Additional folder: "
                 local f_add=$REPLY
                 
-                if [ -d "${f}/${f_add}/${f_path}" ] && [ ! "${f_add}" == "s" ]
+                if [ "${f_add}" == "s" ] || [ "${f_add}" == "S" ]
                 then
-                    if [ ! -d "${f}/${f_add}/${f_path}/${f_name}" ]
-                    then
-                        echo "creating ${f}/${f_add}/${f_path}/${f_name}" >> ${USER_PATH}/create_folder.log
-                        ##mkdir "${f}/${f_add}/${f_path}/${f_name}"
-                    fi
+                    log_message "skipping: ${f}"
                 else
-                    echo "Error: ${f}/${f_add}/${f_path}" >> ${USER_PATH}/create_folder.log
+                    if [ -d "${f}/${f_add}/${f_path}" ]
+                    then
+                        make_directory "${f}/${f_add}/${f_path}/${f_name}"
+                    else
+                        log_message "error: ${f}/${f_add}/${f_path}"
+                    fi
                 fi
+            fi
         fi
         
         let count=$count+1
     done
+}
+
+# makes a directory
+# arg 1 : path
+make_directory () {
+    if [ ! -d "${1}" ]
+    then
+        log_message "creating: ${1}"
+        ##mkdir "${1}"
+    else
+        log_message "already exists: ${1}"
+    fi
+}
+
+log_message () {
+    echo "${1}" >> ${LOGFILE}
 }
 
 # draws a progress bar
