@@ -78,7 +78,7 @@ menu_prompt () {
 menu () {
     menu_prompt "Main menu"
 
-    select word in "401(k) Billing" "QM Billing" "Flexible Benefits Billing" "Sort 401(k)" "Copy QM Final to Final" "Combine QM Excel" "Edit 401(k) Sort Map" "Help" "Exit"
+    select word in "401(k) Billing" "QM Billing" "Flexible Benefits Billing" "Sort 401(k)" "Sort QM" "Copy QM Final to Final" "Combine QM Excel" "Edit 401(k) Sort Map" "Help" "Exit"
     do
         break
     done
@@ -125,6 +125,19 @@ menu () {
         if [ $REPLY = "y" ]; then
             #rm ${PD}/${FINAL}/*.pdf
             cp ${PD}/${QMFINAL}/*.pdf ${PD}/${FINAL}
+        fi
+    fi
+    
+    if [ "$word" = "Sort QM" ]; then
+        echo -e $RED
+        echo -e "${BOLD_ON}Copying QM File Copy pdfs to the file copy folder will remove any existing files in the file folder.${BOLD_OFF}"
+        tput sgr0
+        read -p "Do you want to proceed [y/n]? "
+        
+        if [ $REPLY = "y" ]; then
+            rm ${PD}/${FINAL}/*.pdf
+            cp ${PD}/${QMFILECOPY}/*.pdf ${PD}/${FILECOPY}
+            sort_pd ${PD}/${PD_SORT_CONFIG}
         fi
     fi
     
