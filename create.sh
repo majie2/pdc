@@ -98,26 +98,30 @@ create_folders () {
         then
             make_directory "${f}/${f_path}/${f_name}"
         else
-            local verify=$(ls -l $f | wc -l)
+            local additional_directories=$(find "${f}" -maxdepth 1 -mindepth 1 -type d)
+            local verify=$(echo ${additional_directories} | wc -w)
             
             if [ ${verify} -lt 5 ]
             then
-                echo "Error: please select, or S for skip"
-                ls "${f}"
-                read -p "Additional folder: "
-                local f_add=$REPLY
+                ##echo -e "\nError:"
+                ##echo -e "${additional_directories}\n"
                 
-                if [ "${f_add}" == "s" ] || [ "${f_add}" == "S" ]
-                then
-                    log_message "skipping: ${f}"
-                else
-                    if [ -d "${f}/${f_add}/${f_path}" ]
-                    then
-                        make_directory "${f}/${f_add}/${f_path}/${f_name}"
-                    else
-                        log_message "error: ${f}/${f_add}/${f_path}"
-                    fi
-                fi
+                ##read -p "S for skip"
+                
+                ##if [ "${REPLY}" == "s" ] || [ "${REPLY}" == "S" ]
+                ##then
+                ##    log_message "skipping: ${f}"
+                ##else
+                    for g in ${additional_directories}
+                    do
+                        if [ -d "${g}/${f_path}" ]
+                        then
+                            make_directory "${g}/${f_path}/${f_name}"
+                        else
+                            log_message "error: ${g}/${f_path}"
+                        fi
+                    done
+                ##fi
             fi
         fi
         
@@ -131,7 +135,7 @@ make_directory () {
     if [ ! -d "${1}" ]
     then
         log_message "creating: ${1}"
-        ##mkdir "${1}"
+        mkdir "${1}"
     else
         log_message "already exists: ${1}"
     fi
@@ -148,7 +152,6 @@ draw_progressbar () {
     local part=$1
     local place=$((part*bar_width/$2))
     local i
- 
     echo -ne "\r$((part*100/$2))% ["
  
     for i in $(seq 1 $bar_width); do
