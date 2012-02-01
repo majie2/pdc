@@ -420,7 +420,7 @@ build_flex_pdf () {
 	    echo "${fileName}" >> ${2}/final_flex.log.txt
 	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${FINAL}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debitcard} ${render_statement}
 	    echo "${fileName}" >> ${2}/file_copy_flex.log.txt
-	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${FILECOPY}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debitcard} ${redner_creditmemo} ${render_misc}
+	    gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -sOutputFile=${2}/${FILECOPY}/${fileName} ${render_invoice} ${render_coverpage} ${render_detail} ${render_limited} ${render_debitcard} ${render_creditmemo} ${render_misc}
     fi
 }
 
