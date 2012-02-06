@@ -15,6 +15,7 @@ BD="/mnt/billing"
 PD="/mnt/billing_401k"
 
 CLIENTS="/mnt/clients"
+FLEX="/mnt/flex"
 
 # pdf names
 STATEMENT="Statement.pdf"
@@ -24,6 +25,7 @@ COMBINE="Combine.pdf"
 
 # config files
 PD_SORT_CONFIG="config/401kSortMap.txt"
+BD_SORT_CONFIG="config/flexSortMap.txt"
 
 # specific directories
 INVOICES="Invoices"
@@ -75,10 +77,16 @@ menu_prompt () {
     tput sgr0
 }
 
+warning_prompt() {
+    echo -e $RED
+    echo -e "${BOLD_ON}${1}${BOLD_OFF}"
+    tput sgr0
+}
+
 menu () {
     menu_prompt "Main menu"
 
-    select word in "401(k) Billing" "QM Billing" "Flexible Benefits Billing" "Sort 401(k)" "Sort QM" "Copy QM Final to Final" "Combine QM Excel" "Edit 401(k) Sort Map" "Help" "Exit"
+    select word in "401(k) Billing" "Sort 401(k)" "Edit 401(k) Sort Map" "QM Billing" "Sort QM" "Copy QM Final to Final" "Combine QM Excel" "Flex Billing" "Sort Flex" "Edit Flex Sort Map" "Help" "Exit Billing Application" "Reboot VM" "Shutdown VM"
     do
         break
     done
@@ -91,7 +99,7 @@ menu () {
         qm_billing
     fi
     
-    if [ "$word" = "Flexible Benefits Billing" ]; then
+    if [ "$word" = "Flex Billing" ]; then
         bd_billing
     fi
     
@@ -99,8 +107,16 @@ menu () {
         edit_file ${PD}/${PD_SORT_CONFIG}
     fi
     
+    if [ "$word" = "Edit Flex Sort Map" ]; then
+        edit_file ${BD}/${BD_SORT_CONFIG}
+    fi
+    
     if [ "$word" = "Sort 401(k)" ]; then
-        sort_pd ${PD}/${PD_SORT_CONFIG}
+        sort_files ${PD} ${PD_SORT_CONFIG} ${CLIENTS}
+    fi
+    
+    if [ "$word" = "Sort Flex" ]; then
+        sort_files ${BD} ${BD_SORT_CONFIG} ${FLEX}
     fi
     
     if [ "$word" = "Help" ]; then
@@ -117,32 +133,45 @@ menu () {
     fi
     
     if [ "$word" = "Copy QM Final to Final" ]; then
-        echo -e $RED
-        echo -e "${BOLD_ON}Copying QM final pdfs to the final folder will remove any existing files in the final folder.${BOLD_OFF}"
-        tput sgr0
+        warning_prompt "Make sure you remove all pdfs in the Final folder."
         read -p "Do you want to proceed [y/n]? "
         
         if [ $REPLY = "y" ]; then
-            #rm ${PD}/${FINAL}/*.pdf
             cp ${PD}/${QMFINAL}/*.pdf ${PD}/${FINAL}
         fi
     fi
     
     if [ "$word" = "Sort QM" ]; then
-        echo -e $RED
-        echo -e "${BOLD_ON}Copying QM File Copy pdfs to the file copy folder will remove any existing files in the file folder.${BOLD_OFF}"
-        tput sgr0
+        warning_prompt "Copying QM File Copy pdfs to the file copy folder will remove any existing files in the file folder."
         read -p "Do you want to proceed [y/n]? "
         
         if [ $REPLY = "y" ]; then
             rm ${PD}/${FINAL}/*.pdf
             cp ${PD}/${QMFILECOPY}/*.pdf ${PD}/${FILECOPY}
-            sort_pd ${PD}/${PD_SORT_CONFIG}
+            sort_files ${PD} ${PD_SORT_CONFIG} ${CLIENTS}
         fi
     fi
     
-    if [ "$word" = "Exit" ]; then
+    if [ "$word" = "Exit Billing Application" ]; then
         exit 0
+    fi
+    
+    if [ "$word" = "Reboot VM" ]; then
+        warning_prompt "THIS WILL REBOOT THE VIRTUAL MACHINE."
+        read -p "Do you want to proceed [y/n]? "
+        
+        if [ $REPLY = "y" ]; then
+            sudo reboot
+        fi
+    fi
+    
+    if [ "$word" = "Shutdown VM" ]; then
+        warning_prompt "THIS WILL SHUTDOWN THE VIRTUAL MACHINE."
+        read -p "Do you want to proceed [y/n]? "
+        
+        if [ $REPLY = "y" ]; then
+            sudo shutdown -h now
+        fi
     fi
     
     menu
@@ -203,16 +232,27 @@ draw_progressbar () {
     echo -n "]"
 }
 
-#args 1: map
-sort_pd () {
+#args 1: location
+#args 2: map
+#args 3: destination
+sort_files () {
     echo -e $GREEN
     echo -e "${BOLD_ON}Sorting utility${BOLD_OFF}"
     
-    if [ ! -e "${1}" ]; then
+    if [ ! -e "${1}/${2}" ]; then
         echo -ne ${RED}
-        echo -e "\n${BOLD_ON}File not found:${BOLD_OFF} ${1}"
+        echo -e "\n${BOLD_ON}File not found:${BOLD_OFF} ${2}"
         echo -ne ${BLUE}
         echo "Did the file get renamed, moved or deleted?"
+        tput sgr0
+        menu
+    fi
+    
+    if [ ! -d "${3}" ]; then
+        echo -ne ${RED}
+        echo -e "\n${BOLD_ON}Directory not found:${BOLD_OFF} ${3}"
+        echo -ne ${BLUE}
+        echo "This means the billing application could not find the server."
         tput sgr0
         menu
     fi
@@ -227,7 +267,7 @@ sort_pd () {
     read -p "Date (e.g. 12-31-11): "
     local filename=$REPLY
     
-    local amount=`ls -l ${PD}/${FILECOPY} | wc -l`
+    local amount=`ls -l ${1}/${FILECOPY} | wc -l`
     count=1
     
     declare -a keys
@@ -238,10 +278,10 @@ sort_pd () {
     do
 	    key=`echo $line | sed -e 's/ /_/g'`
 	    keys=( ${keys[@]-} $(echo "$key") )
-    done < $1
+    done < ${1}/${2}
 
     shopt -s nullglob
-    find ${PD}/${FILECOPY}/*.pdf -print0 | while read -d $'\0' f
+    find ${1}/${FILECOPY}/*.pdf -print0 | while read -d $'\0' f
     do
         let count=${count}+1
         draw_progressbar ${count} ${amount}
@@ -268,25 +308,25 @@ sort_pd () {
 		    specialDirectory=`echo $clientMap | cut -f4 -d:`
 
 		    #make sure billing directory exists
-		    if [ -d "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}" ]; then
+		    if [ -d "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}" ]; then
 			    #make sure year directory exists, if not, create it
-			    if [ ! -d "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}" ]; then
-				    echo "Creating directory ${year} for ${f##*/}" >> ${PD}/sort_pd.log.txt
-				    mkdir "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}"
+			    if [ ! -d "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}" ]; then
+				    echo "Creating directory ${year} for ${f##*/}" >> ${1}/sort_pd.log.txt
+				    mkdir "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}"
 			    fi
 
 			    #only move the file if it doesn't exist in destination directory
-			    if [ ! -e "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf" ]; then
-				    echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/${specialDirectory}/Billing/${year}" >> ${PD}/sort_pd.log.txt
-				    mv "${f}" "${CLIENTS}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf"
+			    if [ ! -e "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf" ]; then
+				    echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/${specialDirectory}/Billing/${year}" >> ${1}/sort_pd.log.txt
+				    mv "${f}" "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf"
 			    else
-				    echo "${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf already exists" >> ${PD}/sort_pd.log.txt
+				    echo "${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf already exists" >> ${1}/sort_pd.log.txt
 			    fi
 		    else
-			    echo "Could not find directory for ${f##*/}" >> ${PD}/sort_pd.log.txt
+			    echo "Could not find directory for ${f##*/}" >> ${1}/sort_pd.log.txt
 		    fi
 	    else
-		    echo "Could not find map for ${f##*/}" >> ${PD}/sort_pd.log.txt
+		    echo "Could not find map for ${f##*/}" >> ${1}/sort_pd.log.txt
 	    fi
     done
 
