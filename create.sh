@@ -3,7 +3,7 @@
 # date:		January 3 2012
 # license:	MIT
 
-VERSION=1.0
+VERSION=1.1
 
 # reference to path where this script is being run
 THIS_PATH="`dirname \"$0\"`"
@@ -103,25 +103,15 @@ create_folders () {
             
             if [ ${verify} -lt 5 ]
             then
-                ##echo -e "\nError:"
-                ##echo -e "${additional_directories}\n"
-                
-                ##read -p "S for skip"
-                
-                ##if [ "${REPLY}" == "s" ] || [ "${REPLY}" == "S" ]
-                ##then
-                ##    log_message "skipping: ${f}"
-                ##else
-                    for g in ${additional_directories}
-                    do
-                        if [ -d "${g}/${f_path}" ]
-                        then
-                            make_directory "${g}/${f_path}/${f_name}"
-                        else
-                            log_message "error: ${g}/${f_path}"
-                        fi
-                    done
-                ##fi
+				for g in ${additional_directories}
+				do
+					if [ -d "${g}/${f_path}" ]
+					then
+						make_directory "${g}/${f_path}/${f_name}"
+					else
+						log_message "error: ${g}/${f_path}"
+					fi
+				done
             fi
         fi
         
