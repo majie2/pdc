@@ -172,7 +172,7 @@ menu () {
         if [ $REPLY = "y" ]; then
             sudo shutdown -h now
         fi
-    fibd_billing
+	fi
     
     menu
 }
