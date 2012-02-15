@@ -172,7 +172,7 @@ menu () {
         if [ $REPLY = "y" ]; then
             sudo shutdown -h now
         fi
-    fi
+    fibd_billing
     
     menu
 }
@@ -254,7 +254,7 @@ sort_files () {
         echo -ne ${BLUE}
         echo "This means the billing application could not find the server."
         tput sgr0
-        menu
+        menubd_billing
     fi
     
     echo -ne $BLUE
@@ -311,22 +311,22 @@ sort_files () {
 		    if [ -d "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}" ]; then
 			    #make sure year directory exists, if not, create it
 			    if [ ! -d "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}" ]; then
-				    echo "Creating directory ${year} for ${f##*/}" >> ${1}/sort_pd.log.txt
-				    mkdir "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}"
+				    echo "Creating directory ${year} for ${f##*/}" >> ${1}/sort.log.txt
+				    #mkdir "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}"
 			    fi
 
 			    #only move the file if it doesn't exist in destination directory
 			    if [ ! -e "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf" ]; then
-				    echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/${specialDirectory}/Billing/${year}" >> ${1}/sort_pd.log.txt
-				    mv "${f}" "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf"
+				    echo "Moving ${f##*/} to ${clientDirectory}/${planDirectory}/${specialDirectory}/Billing/${year}" >> ${1}/sort.log.txt
+				    #mv "${f}" "${3}/${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf"
 			    else
-				    echo "${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf already exists" >> ${1}/sort_pd.log.txt
+				    echo "${clientDirectory}/${planDirectory}/Billing/${specialDirectory}/${year}/${filename}.pdf already exists" >> ${1}/sort.log.txt
 			    fi
 		    else
-			    echo "Could not find directory for ${f##*/}" >> ${1}/sort_pd.log.txt
+			    echo "Could not find directory for ${f##*/}" >> ${1}/sort.log.txt
 		    fi
 	    else
-		    echo "Could not find map for ${f##*/}" >> ${1}/sort_pd.log.txt
+		    echo "Could not find map for ${f##*/}" >> ${1}/sort.log.txt
 	    fi
     done
 
