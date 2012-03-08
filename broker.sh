@@ -8,7 +8,7 @@
 #
 # args 1: the broker text file
 
-BILLINGDIR="/mnt/billing"
+BILLINGDIR="/mnt/billing_bd"
 
 # invoice file
 INVOICE="${BILLINGDIR}/Invoice.pdf"

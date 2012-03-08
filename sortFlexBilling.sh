@@ -12,9 +12,9 @@
 # args 3: current year
 
 #directory containing client folders
-clientsDirectory="/mnt/flex"
+clientsDirectory="/mnt/bd"
 #directory of final pdfs to sort
-finalDirectory="/mnt/billing/File_copy"
+finalDirectory="/mnt/billing_bd/File_copy"
 
 #mapping file
 if [ ! -e "${1}" ]; then

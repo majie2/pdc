@@ -12,9 +12,9 @@
 # args 3: current year
 
 #directory containing client folders
-clientsDirectory="/mnt/clients"
+clientsDirectory="/mnt/pd"
 #directory of final pdfs to sort
-finalDirectory="/mnt/billing_401k/File_copy"
+finalDirectory="/mnt/billing_pd/File_copy"
 
 #mapping file
 if [ ! -e "${1}" ]; then

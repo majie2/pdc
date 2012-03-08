@@ -3,7 +3,7 @@
 # date:		January 3 2012
 # license:	MIT
 
-VERSION=2.3
+VERSION=2.4
 
 # reference to path where this script is being run
 THIS_PATH="`dirname \"$0\"`"
@@ -11,11 +11,11 @@ THIS_PATH="`dirname \"$0\"`"
 bar_width=50
 
 # billing directories
-BD="/mnt/billing"
-PD="/mnt/billing_401k"
+BD="/mnt/billing_bd"
+PD="/mnt/billing_pd"
 
-CLIENTS="/mnt/clients"
-FLEX="/mnt/flex"
+CLIENTS="/mnt/pd"
+FLEX="/mnt/bd"
 
 # pdf names
 STATEMENT="Statement.pdf"

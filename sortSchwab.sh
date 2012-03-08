@@ -12,7 +12,7 @@
 THIS_PATH="`dirname \"$0\"`"
 
 #directory of containing client folders
-clientDirectory="/mnt/clients"
+clientDirectory="/mnt/pd"
 
 #mapping file
 map="/mnt/config/map.txt"
