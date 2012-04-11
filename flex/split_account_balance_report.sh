@@ -27,11 +27,15 @@ then
 	    temp=$(sed "3q;d" page_$i.txt)
 	    company=$(echo ${temp:26})
 	    
+	    #convert slashes to underscores
+	    company=${company//\//_}
+	    
 	    if [ "$company" != "$current" ] && [ $i -ne 1 ]
 	    then
 	        let last_page=$i-1
 	        seed=true
 	        
+	        echo "Processing: $company"
 	        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=${first_page} -dLastPage=${last_page} -sOutputFile="${OUTPUT}/${current// /_}.pdf" "${1}"
 	    fi
 	    
@@ -51,6 +55,9 @@ then
     then
         let last_page=$i-1
         
+        echo "Processing: $company"
         gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=${first_page} -dLastPage=${last_page} -sOutputFile=${current// /_}.pdf "${1}"
     fi
+    
+    read -p "Complete. Press any key to exit."
 fi
