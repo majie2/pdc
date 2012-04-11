@@ -35,7 +35,7 @@ then
 	        let last_page=$i-1
 	        seed=true
 	        
-	        echo "Processing: $company"
+	        echo "Processing: $current"
 	        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=${first_page} -dLastPage=${last_page} -sOutputFile="${OUTPUT}/${current// /_}.pdf" "${1}"
 	    fi
 	    
@@ -55,8 +55,8 @@ then
     then
         let last_page=$i-1
         
-        echo "Processing: $company"
-        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=${first_page} -dLastPage=${last_page} -sOutputFile=${current// /_}.pdf "${1}"
+        echo "Processing: $current"
+        gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=${first_page} -dLastPage=${last_page} -sOutputFile=${OUTPUT}/${current// /_}.pdf "${1}"
     fi
     
     read -p "Complete. Press any key to exit."
