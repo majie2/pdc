@@ -77,7 +77,7 @@ menu_prompt () {
     tput sgr0
 }
 
-warning_prompt() {
+warning_prompt () {
     echo -e $RED
     echo -e "${BOLD_ON}${1}${BOLD_OFF}"
     tput sgr0
