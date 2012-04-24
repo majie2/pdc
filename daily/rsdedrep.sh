@@ -82,11 +82,6 @@ convert_date () {
             month="0$month"
         fi
         
-        if [ $day -lt 10 ]
-        then
-            day="0$day"
-        fi
-        
         echo "${month}${day}${year}"
     fi
 } 
@@ -288,7 +283,7 @@ stripped_ssn=$(echo $current | tr -d '-')
 dob=$(convert_date "$dob")
 doh=$(convert_date "$doh")
 dot=$(convert_date "$dot")
-echo "\"$stripped_ssn\",\"${shop:3:3}\",\"$last_name\",\"$first_name\",\"${gross_pay}\",4K,\"$deduction\",PS,,\"$loan_one\",\"$loan_two\",total,\"$dob\",\"$doh\",\"$dot\",\"$address\",\"$city\",\"$state\",\"$zip\"" >> ${OUTFILE}
+echo "\"$stripped_ssn\",\"${shop:3:3}\",\"$last_name\",\"$first_name\",\"${gross_pay}\",4K,\"$deduction\",PS,,\"$loan_one\",\"$loan_two\",,\"$dob\",\"$doh\",\"$dot\",\"$address\",\"$city\",\"$state\",\"$zip\"" >> ${OUTFILE}
 
 if [ $ERR_COUNT_CENSUS_NA -gt 0 ] || [ $ERR_COUNT_CODE_NA -gt 0 ] || [ $ERR_COUNT_ADDRESS_CORRUPT -gt 0 ]
 then
