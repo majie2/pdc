@@ -86,7 +86,7 @@ warning_prompt () {
 menu () {
     menu_prompt "Main menu"
 
-    select word in "401(k) Billing" "Sort 401(k)" "Edit 401(k) Sort Map" "QM Billing" "Sort QM" "Copy QM Final to Final" "Combine QM Excel" "Flex Billing" "Sort Flex" "Edit Flex Sort Map" "Help" "Exit Billing Application" "Reboot VM" "Shutdown VM"
+    select word in "401(k) Billing" "Sort 401(k)" "Edit 401(k) Sort Map" "QM Billing" "Sort QM" "Copy QM Final to Final" "Combine QM Excel" "Flex Billing" "Sort Flex" "Edit Flex Sort Map" "Help" "Exit Billing Application"
     do
         break
     done
@@ -155,24 +155,6 @@ menu () {
     if [ "$word" = "Exit Billing Application" ]; then
         exit 0
     fi
-    
-    if [ "$word" = "Reboot VM" ]; then
-        warning_prompt "THIS WILL REBOOT THE VIRTUAL MACHINE."
-        read -p "Do you want to proceed [y/n]? "
-        
-        if [ $REPLY = "y" ]; then
-            sudo reboot
-        fi
-    fi
-    
-    if [ "$word" = "Shutdown VM" ]; then
-        warning_prompt "THIS WILL SHUTDOWN THE VIRTUAL MACHINE."
-        read -p "Do you want to proceed [y/n]? "
-        
-        if [ $REPLY = "y" ]; then
-            sudo shutdown -h now
-        fi
-	fi
     
     menu
 }

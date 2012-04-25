@@ -172,3 +172,5 @@ dob=$(convert_date "$dob")
 doh=$(convert_date "$doh")
 dot=$(convert_date "$dot")
 echo "\"$stripped_ssn\",\"${shop:3:3}\",\"$last_name\",\"$first_name\",\"${gross_pay}\",4K,\"$deduction\",PS,%er,\"$loan_one\",\"$loan_two\",total,"
+
+read -p "Complete. Press ENTER to exit."

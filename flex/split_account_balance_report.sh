@@ -59,5 +59,5 @@ then
         gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dQUIET -dFirstPage=${first_page} -dLastPage=${last_page} -sOutputFile=${OUTPUT}/${current// /_}.pdf "${1}"
     fi
     
-    read -p "Complete. Press any key to exit."
+    read -p "Complete. Press ENTER to exit."
 fi

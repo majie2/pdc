@@ -293,4 +293,4 @@ then
     echo "Address contained illegal characters: ${ERR_COUNT_ADDRESS_CORRUPT}"
 fi
 
-read -p "Complete. Press ENTER to ."
+read -p "Complete. Press ENTER to exit."
