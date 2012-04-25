@@ -67,3 +67,5 @@ do
         let LINE_NUMBER=${LINE_NUMBER}+1
     done < "$f"
 done
+
+read -p "Complete. Press ENTER to exit."

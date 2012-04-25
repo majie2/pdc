@@ -9,7 +9,7 @@ ERR_COUNT_CENSUS_NA=0
 ERR_COUNT_CODE_NA=0
 ERR_COUNT_ADDRESS_CORRUPT=0
 
-OUTFILE="/home/$(whoami)/output.csv"
+OUTFILE="/mnt/pd/Rserection/barrett.csv"
 
 rm ${OUTFILE}
 
@@ -293,6 +293,4 @@ then
     echo "Address contained illegal characters: ${ERR_COUNT_ADDRESS_CORRUPT}"
 fi
 
-cp ${OUTFILE} "/mnt/pd/Rserection/output.csv"
-
-read -p "Complete. Press any key to exit."
+read -p "Complete. Press ENTER to ."
