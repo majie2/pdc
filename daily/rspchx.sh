@@ -4,6 +4,7 @@
 
 OUTFILE="${1}/paychex.csv"
 LOANS="${1}/loans.txt"
+PS_CONFIG="${1}/ps.config.txt"
 
 if [ -e "$OUTFILE" ]
 then
@@ -15,9 +16,17 @@ then
     rm $LOANS
 fi
 
+if [ ! -e "$PS_CONFIG" ]
+then
+    echo "File does not exist"
+    read -p "Press ENTER to exit."
+    exit 0
+fi
+
 if [ ! -d "${1}" ]
 then
     echo "Directory does not exist: $1"
+    read -p "Press ENTER to exit."
     exit 0
 fi
 
@@ -87,7 +96,11 @@ do
                 balance=$(sed -n "${location_12}p" "$f")
             fi
             
-            echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,,${loan_one},${loan_two},,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
+            ps_percent=$(grep "$shop" "$PS_CONFIG" | cut -f2 -d' ' | tr -d '\r')
+            pay_sanitized=$(echo $gross | tr -d ',')
+            ps_amount=$(echo "$pay_sanitized * $ps_percent" | bc)
+            
+            echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,${ps_amount},${loan_one},${loan_two},,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
             
             #reset
             ee_percent=""
@@ -107,6 +120,9 @@ do
             shop=""
             ee_id=""
             loan_loc=""
+            ps_percent=""
+            pay_sanitized=""
+            ps_amount=""
         fi
         
         let LINE_NUMBER=${LINE_NUMBER}+1
