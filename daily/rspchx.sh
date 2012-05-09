@@ -96,7 +96,7 @@ do
                 balance=$(sed -n "${location_12}p" "$f")
             fi
             
-            ps_percent=$(grep "$shop" "$PS_CONFIG" | cut -f2 -d' ' | tr -d '\r')
+            ps_percent=$(grep "${shop:0:3}" "$PS_CONFIG" | cut -f2 -d' ' | tr -d '\r')
             pay_sanitized=$(echo $gross | tr -d ',')
             ps_amount=$(echo "$pay_sanitized * $ps_percent" | bc)
             
