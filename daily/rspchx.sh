@@ -32,8 +32,7 @@ warning_prompt () {
 }
 
 message () {
-    echo -e $GREEN
-    echo -e "${1}"
+    echo -e "${GREEN}${1}"
     tput sgr0
 }
 
