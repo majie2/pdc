@@ -6,6 +6,37 @@ OUTFILE="${1}/paychex.csv"
 LOANS="${1}/loans.txt"
 PS_CONFIG="${1}/ps.config.txt"
 
+# system variables
+BOLD_ON="\033[1m"
+BOLD_OFF="\033[0m"
+RED='\E[31;47m'
+BLUE='\E[36;40m'
+GREEN='\E[32;40m'
+
+clear
+
+echo -e "\n##################################################"
+echo "#                                                #"
+echo "# rspchx.sh                                      #"
+echo "#                                                #"
+echo "# author  : josef kelly                          #"
+echo "# license : mit                                  #"
+echo "# version : 1.1                                  #"
+echo "#                                                #"
+echo "##################################################"
+
+warning_prompt () {
+    echo -e $RED
+    echo -e "${BOLD_ON}${1}${BOLD_OFF}"
+    tput sgr0
+}
+
+message_complete () {
+    echo -e $GREEN
+    echo -e "${1}"
+    tput sgr0
+}
+
 if [ -e "$OUTFILE" ]
 then
     rm $OUTFILE
@@ -30,15 +61,24 @@ then
     exit 0
 fi
 
+echo -n "Converting pdfs... "
+
 for f in ${1}/*.pdf
 do
-    pdftotext "$f"
+    pdftotext -q "$f"
 done
+
+message "complete"
+echo -n "Processing loans... "
 
 for f in ${1}/loans/*.txt
 do
     cat "$f" >> "$LOANS"
 done
+
+message "complete"
+
+echo -n "Extracting data... "
 
 for f in ${1}/*.txt
 do
@@ -128,5 +168,7 @@ do
         let LINE_NUMBER=${LINE_NUMBER}+1
     done < "$f"
 done
+
+message "complete"
 
 read -p "Complete. Press ENTER to exit."
