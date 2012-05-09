@@ -31,7 +31,7 @@ warning_prompt () {
     tput sgr0
 }
 
-message_complete () {
+message () {
     echo -e $GREEN
     echo -e "${1}"
     tput sgr0
