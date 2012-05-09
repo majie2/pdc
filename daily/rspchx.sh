@@ -1,11 +1,18 @@
 #! /bin/bash
 # arg 1 : directory with pdfs
+# loans must be in directory called loans, must be saved manually as plain text files
 
 OUTFILE="${1}/paychex.csv"
+LOANS="${1}/loans.txt"
 
 if [ -e "$OUTFILE" ]
 then
     rm $OUTFILE
+fi
+
+if [ -e "$LOANS" ]
+then
+    rm $LOANS
 fi
 
 if [ ! -d "${1}" ]
@@ -19,6 +26,11 @@ do
     pdftotext "$f"
 done
 
+for f in ${1}/loans/*.txt
+do
+    cat "$f" >> "$LOANS"
+done
+
 for f in ${1}/*.txt
 do
     LINE_NUMBER=1
@@ -30,6 +42,20 @@ do
         
         if [ "${#is_ssn}" -eq 11 ] && [ "${is_ssn:3:1}" == "-" ] && [ "${is_ssn:6:1}" == "-" ]
         then
+            ee_id=$(echo $line | cut -f1 -d' ')
+            loan_loc=$(grep -n "$ee_id" "$LOANS" | cut -f1 -d:)
+            
+            if [ "${#loan_loc}" -gt 0 ]
+            then
+                loan_info=$(sed -n "${loan_loc}p" "$LOANS" | cut -f3 -d'-')
+                loan_one=$(echo $loan_info | cut -f2 -d' ')
+                loan_two=$(echo $loan_info | cut -f3 -d' ')
+            else
+                loan_info=""
+                loan_one=""
+                loan_two=""
+            fi
+        
             let name_location=${LINE_NUMBER}-1
             let location_2=${LINE_NUMBER}+2
             let location_4=${LINE_NUMBER}+4
@@ -61,7 +87,7 @@ do
                 balance=$(sed -n "${location_12}p" "$f")
             fi
             
-            echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,,loan 1,loan 2,,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
+            echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,,${loan_one},${loan_two},,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
         fi
         
         let LINE_NUMBER=${LINE_NUMBER}+1
