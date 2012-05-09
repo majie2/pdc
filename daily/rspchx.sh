@@ -137,9 +137,10 @@ do
             
             ps_percent=$(grep "${shop:0:3}" "$PS_CONFIG" | cut -f2 -d' ' | tr -d '\r')
             pay_sanitized=$(echo $gross | tr -d ',')
+            #lets just keep this here for now
             ps_amount=$(echo "$pay_sanitized * $ps_percent" | bc)
             
-            echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,${ps_amount},${loan_one},${loan_two},,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
+            echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,,${loan_one},${loan_two},,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
             
             #reset
             ee_percent=""
