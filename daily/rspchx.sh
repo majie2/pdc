@@ -88,6 +88,25 @@ do
             fi
             
             echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,,${loan_one},${loan_two},,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
+            
+            #reset
+            ee_percent=""
+            ee_amount=""
+            er_percent=""
+            er_amount=""
+            balance=""
+            loan_info=""
+            loan_one=""
+            loan_two=""
+            name=""
+            first_name=""
+            last_name=""
+            gross=""
+            has_ee=""
+            ssn=""
+            shop=""
+            ee_id=""
+            loan_loc=""
         fi
         
         let LINE_NUMBER=${LINE_NUMBER}+1
