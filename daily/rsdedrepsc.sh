@@ -1,5 +1,13 @@
 #! /bin/bash
 
+SC_PATH="/mnt/pd/Rserection/process/sc"
+
+DEDUCTION_PATH="${SC_PATH}/deduction.txt"
+PAYDETAIL_PATH="${SC_PATH}/detail.txt"
+ROSTER_PATH="${SC_PATH}/roster.txt"
+
+PAYDETAIL_PDF="${SC_PATH}/detail.pdf"
+
 if [ ! -e "$1" ]
 then
     echo "File does not exist: $1"
