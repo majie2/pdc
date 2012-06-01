@@ -137,8 +137,14 @@ do
             
             ps_percent=$(grep "${shop:0:3}" "$PS_CONFIG" | cut -f2 -d' ' | tr -d '\r')
             pay_sanitized=$(echo $gross | tr -d ',')
+            
             #lets just keep this here for now
-            ps_amount=$(echo "$pay_sanitized * $ps_percent" | bc)
+            if [ "${#ps_percent}" -gt 0 ] && [ "${#pay_sanitized}" -gt 0 ]
+            then
+                ps_amount=$(echo "$pay_sanitized * $ps_percent" | bc)
+            else
+                ps_amount=""
+            fi
             
             echo "${FILE},${ssn},${shop:0:3},\"${last_name}\",\"${first_name}\",${gross},4K,${ee_amount},PS,,${loan_one},${loan_two},,dob,doh,dot,address,city,state,zip" >> ${OUTFILE}
             
@@ -170,5 +176,38 @@ do
 done
 
 message "complete"
+echo -n "Finding orphaned loans... "
 
-read -p "Complete. Press ENTER to exit."
+while read line
+do
+    ssn=$(echo $line | grep -b -o '[0-9]\{3\}-[0-9]\{2\}-[0-9]\{4\}' | cut -f2 -d:)
+    
+    exists=""
+    loan_one=""
+    loan_two=""
+    shop=""
+    last_name=""
+    first_name=""
+    
+    if [ "${#ssn}" -gt 1 ]
+    then
+        target=$(echo $ssn | tr -d '-')
+        exists=$(grep "$target" "$OUTFILE")
+        
+        if [ "${#exists}" -eq 0 ]
+        then
+            loan_one=$(echo $line | cut -f3 -d'-' | cut -f2 -d' ')
+            loan_two=$(echo $line | cut -f3 -d'-' | cut -f3 -d' ')
+            shop=$(echo $line | cut -f2 -d' ')
+            last_name=$(echo $line | cut -f3 -d' ' | sed 's/.*/\L&/; s/[a-z]*/\u&/g')
+            spaces=$(echo $line | cut -f1 -d'-' | wc -w)
+            spaces=$(echo "$spaces - 1" | bc)
+            first_name=$(echo $line | cut -f4-"$spaces" -d' ' | sed 's/.*/\L&/; s/[a-z]*/\u&/g')
+            echo ",${target},${shop:0:3},\"$last_name\",\"$first_name\",,4K,,PS,,\"$loan_one\",\"$loan_two\",,dob,doh,dot,address,city,state,zip" >> $OUTFILE
+        fi
+    fi
+done < "$LOANS"
+
+message "complete"
+
+read -p "Press ENTER to exit."
