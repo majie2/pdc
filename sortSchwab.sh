@@ -20,9 +20,17 @@ map="/mnt/config/mapping.txt"
 #log file
 log="~/schwab.log"
 
+read -p "Year (i.e. 2012): "
+TARGET_YEAR=$(echo $REPLY)
+
+read -p "Month (i.e. A - January): "
+TARGET_MONTH=$(echo $REPLY)
+
+TARGET_DIR="${clientDirectory}/Admin/Schwab Statements/${TARGET_YEAR}/${TARGET_MONTH}"
+
 #directory of files to sort
-if [ ! -d "${1}" ]; then
-	echo "Could not find ${1}"
+if [ ! -d "${TARGET_DIR}" ]; then
+	echo "Could not find ${TARGET_DIR}"
 	exit 0
 fi
 
@@ -50,10 +58,10 @@ done < ${map}
 echo "Discovering pdfs..."
 
 shopt -s nullglob
-find "${1}"/*.pdf -print0 | while read -d $'\0' f
+find "${TARGET_DIR}"/*.pdf -print0 | while read -d $'\0' f
 do
 	#convert pdf to text file
-	pdftotext -f 1 -l 1 "$f" "${1}"/temp.txt
+	pdftotext -f 1 -l 1 "$f" "${TARGET_DIR}"/temp.txt
 
 	clientMap=""
 	key=""
@@ -62,7 +70,7 @@ do
 	for i in ${keys[@]}
 	do
 		key=`echo $i | sed -e 's/_/ /g' | cut -f1 -d:`
-		location=`grep "$key" "${1}"/temp.txt`
+		location=`grep "$key" "${TARGET_DIR}"/temp.txt`
 
 		if [ -n "$location" ]; then
 			clientMap=`echo "$i" | sed -e 's/_/ /g'`
@@ -148,6 +156,6 @@ do
 done
 
 echo "Cleaning up... done"
-rm "${1}"/temp.txt
+rm "${TARGET_DIR}"/temp.txt
 echo "Finished moving Schwab Statements"
 echo "Check schwab.log to view errors"
