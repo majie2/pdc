@@ -15,7 +15,7 @@ THIS_PATH="`dirname \"$0\"`"
 clientDirectory="/mnt/pd"
 
 #mapping file
-map="/mnt/config/map.txt"
+map="/mnt/config/mapping.txt"
 
 #log file
 log="~/schwab.log"
