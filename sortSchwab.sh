@@ -61,7 +61,7 @@ shopt -s nullglob
 find "${TARGET_DIR}"/*.pdf -print0 | while read -d $'\0' f
 do
 	#convert pdf to text file
-	pdftotext -f 1 -l 1 "$f" "${TARGET_DIR}"/temp.txt
+	pdftotext -f 1 -l 1 "$f" "${TARGET_DIR}/temp.txt"
 
 	clientMap=""
 	key=""
@@ -69,11 +69,14 @@ do
 
 	for i in ${keys[@]}
 	do
-		key=`echo $i | sed -e 's/_/ /g' | cut -f1 -d:`
-		location=`grep "$key" "${TARGET_DIR}"/temp.txt`
+		key=$(echo $i | sed -e 's/_/ /g' | cut -f1 -d:)
+		location=$(grep "$key" "${TARGET_DIR}/temp.txt")
 
 		if [ -n "$location" ]; then
-			clientMap=`echo "$i" | sed -e 's/_/ /g'`
+			clientMap=$(echo "$i" | sed -e 's/_/ /g')
+			lineNumber=$(grep -n -m 1 "$key" "${TARGET_DIR}/temp.txt")
+			nextLineNumber=$(echo "${lineNumber} + 1" | bc)
+			fileName=$(sed '${nextLineNumber}q;d' | sed -e 's/ /_/g')
 			break
 		fi
 	done
@@ -142,16 +145,27 @@ do
 				mkdir "${finalDirectory}"
 			fi
 
-			echo "Copying ${f##*/} to ${directoryName}"
-
-			if [ ! -e "${finalDirectory}"${f##*/} ]; then
-				mv "$f" "${finalDirectory}"${f##*/}
+			if [ -n "$fileName" ]; then
+				echo "Renaming ${f##*/} to ${fileName}"
+				echo "Copying ${fileName} to ${directoryName}"
+				
+				if [ ! -e "${finalDirectory}${fileName}" ]; then
+					#mv "$f" "${finalDirectory}${fileName}"
+				else
+					"${f##*/} already exists in target location"
+				fi
 			else
-				"${f##*/} already exists in target location" >> $log
+				echo "Copying ${f##*/} to ${directoryName}"
+				
+				if [ ! -e "${finalDirectory}${f##*/}" ]; then
+					#mv "$f" "${finalDirectory}${f##*/}"
+				else
+					"${f##*/} already exists in target location"
+				fi
 			fi
 		fi
 	else
-		echo "${f##*/} has no map" >> $log
+		echo "${f##*/} has no map"
 	fi
 done
 
