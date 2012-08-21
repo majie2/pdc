@@ -70,9 +70,11 @@ do
 			
 			fboLine=$(grep -m 1 "FBO" "${TARGET_DIR}/temp.txt")
 			fboOffset=$(echo "${fboLine}" | grep -o -b "FBO" | cut -f1 -d:)
+			echo $fboLine
 			
 			if [ ! -n "${fboOffset}" ]; then
 				fileName=$(echo ${fboLine:$(echo "${fboOffset} + 4" | bc)})
+				echo $fileName
 			fi
 			
 			break
@@ -143,7 +145,7 @@ do
 				mkdir "${finalDirectory}"
 			fi
 
-			if [ -n "$fileName" ]; then
+			if [ -n "${fileName}" ]; then
 				echo "Renaming ${f##*/} to ${fileName}"
 				echo "Copying ${fileName} to ${directoryName}"
 				
