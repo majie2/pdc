@@ -17,9 +17,6 @@ clientDirectory="/mnt/pd"
 #mapping file
 map="/mnt/config/mapping.txt"
 
-#log file
-log="~/schwab.log"
-
 read -p "Year (i.e. 2012): "
 TARGET_YEAR=$(echo $REPLY)
 
@@ -41,10 +38,6 @@ if [ ! -e $map ]; then
 fi
 
 ./${THIS_PATH}/testmap.sh $clientDirectory $map
-
-if [ ! -e $log ]; then
-    touch $log
-fi
 
 echo "Loading mapping file..."
 declare -a keys
@@ -74,9 +67,14 @@ do
 
 		if [ -n "$location" ]; then
 			clientMap=$(echo "$i" | sed -e 's/_/ /g')
-			lineNumber=$(grep -n -m 1 "$key" "${TARGET_DIR}/temp.txt")
-			nextLineNumber=$(echo "${lineNumber} + 1" | bc)
-			fileName=$(sed '${nextLineNumber}q;d' | sed -e 's/ /_/g')
+			
+			fboLine=$(grep -m 1 "FBO" "${TARGET_DIR}/temp.txt")
+			fboOffset=$(echo "${fboLine}" | grep -o -b "FBO" | cut -f1 -d:)
+			
+			if [ ! -n "${fboOffset}" ]; then
+				fileName=$(echo ${fboLine:$(echo "${fboOffset} + 4" | bc)})
+			fi
+			
 			break
 		fi
 	done
@@ -150,6 +148,7 @@ do
 				echo "Copying ${fileName} to ${directoryName}"
 				
 				if [ ! -e "${finalDirectory}${fileName}" ]; then
+					echo "hello"
 					#mv "$f" "${finalDirectory}${fileName}"
 				else
 					"${f##*/} already exists in target location"
@@ -158,6 +157,7 @@ do
 				echo "Copying ${f##*/} to ${directoryName}"
 				
 				if [ ! -e "${finalDirectory}${f##*/}" ]; then
+					echo "hello"
 					#mv "$f" "${finalDirectory}${f##*/}"
 				else
 					"${f##*/} already exists in target location"
@@ -172,4 +172,3 @@ done
 echo "Cleaning up... done"
 rm "${TARGET_DIR}"/temp.txt
 echo "Finished moving Schwab Statements"
-echo "Check schwab.log to view errors"
