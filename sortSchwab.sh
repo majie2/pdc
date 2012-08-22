@@ -71,6 +71,7 @@ do
 			fboLine=$(grep -m 1 "FBO" "${TARGET_DIR}/temp.txt")
 			fboOffset=$(echo "${fboLine}" | grep -o -b "FBO" | cut -f1 -d:)
 			echo $fboLine
+			echo $fboOffset
 			
 			if [ ! -n "${fboOffset}" ]; then
 				fileName=$(echo ${fboLine:$(echo "${fboOffset} + 4" | bc)})
