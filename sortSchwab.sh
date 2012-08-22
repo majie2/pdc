@@ -73,7 +73,6 @@ do
 			
 			if [ -n "${fboOffset}" ]; then
 				fileName=$(echo ${fboLine:$(echo "${fboOffset} + 4" | bc)})
-				echo $fileName
 			fi
 			
 			break
@@ -145,23 +144,19 @@ do
 			fi
 
 			if [ -n "${fileName}" ]; then
-				echo "Renaming ${f##*/} to ${fileName}"
-				echo "Copying ${fileName} to ${directoryName}"
-				
 				if [ ! -e "${finalDirectory}${fileName}" ]; then
-					echo "hello"
+					echo "Renaming ${f##*/} to ${fileName}"
+					echo "Copying ${fileName} to ${directoryName}"
 					#mv "$f" "${finalDirectory}${fileName}"
 				else
-					"${f##*/} already exists in target location"
+					echo "${fileName} already exists in target location"
 				fi
 			else
-				echo "Copying ${f##*/} to ${directoryName}"
-				
 				if [ ! -e "${finalDirectory}${f##*/}" ]; then
-					echo "hello"
+					echo "Copying ${f##*/} to ${directoryName}"
 					#mv "$f" "${finalDirectory}${f##*/}"
 				else
-					"${f##*/} already exists in target location"
+					echo "${f##*/} already exists in target location"
 				fi
 			fi
 		fi
