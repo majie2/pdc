@@ -55,6 +55,7 @@ find "${TARGET_DIR}"/*.pdf -print0 | while read -d $'\0' f
 do
 	#convert pdf to text file
 	pdftotext -f 1 -l 1 "$f" "${TARGET_DIR}/temp.txt"
+	fileName=""
 
 	clientMap=""
 	key=""
