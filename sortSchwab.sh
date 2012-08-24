@@ -147,15 +147,15 @@ do
 			if [ -n "${fileName}" ]; then
 				if [ ! -e "${finalDirectory}${fileName}" ]; then
 					echo "Renaming ${f##*/} to ${fileName}"
-					echo "Copying ${fileName} to ${directoryName}"
-					#mv "$f" "${finalDirectory}${fileName}"
+					echo "Moving ${fileName} to ${directoryName}"
+					mv "$f" "${finalDirectory}${fileName}.pdf"
 				else
 					echo "${fileName} already exists in target location"
 				fi
 			else
 				if [ ! -e "${finalDirectory}${f##*/}" ]; then
-					echo "Copying ${f##*/} to ${directoryName}"
-					#mv "$f" "${finalDirectory}${f##*/}"
+					echo "Moving ${f##*/} to ${directoryName}"
+					mv "$f" "${finalDirectory}${f##*/}"
 				else
 					echo "${f##*/} already exists in target location"
 				fi
