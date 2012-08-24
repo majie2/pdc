@@ -145,7 +145,7 @@ do
 			fi
 
 			if [ -n "${fileName}" ]; then
-				if [ ! -e "${finalDirectory}${fileName}" ]; then
+				if [ ! -e "${finalDirectory}${fileName}.pdf" ]; then
 					echo "Renaming ${f##*/} to ${fileName}"
 					echo "Moving ${fileName} to ${directoryName}"
 					mv "$f" "${finalDirectory}${fileName}.pdf"
