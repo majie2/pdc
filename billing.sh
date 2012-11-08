@@ -499,7 +499,7 @@ split_pdf () {
         ${THIS_PATH}/splitPDF.sh ${1} ${2} ${3} ${4}
     fi
 }
-/
+
 qm_billing () {
     #split source pdfs
     split_pdf "${PD}/${STATEMENT}" "${PD}/${STATEMENTS}" 2
