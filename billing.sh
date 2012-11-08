@@ -142,11 +142,11 @@ menu () {
     fi
     
     if [ "$word" = "Sort QM" ]; then
-        warning_prompt "Copying QM File Copy pdfs to the file copy folder will remove any existing files in the file folder."
+        warning_prompt "Make sure the File Copy folder empty."
         read -p "Do you want to proceed [y/n]? "
         
         if [ $REPLY = "y" ]; then
-            rm ${PD}/${FINAL}/*.pdf
+            #rm ${PD}/${FINAL}/*.pdf
             cp ${PD}/${QMFILECOPY}/*.pdf ${PD}/${FILECOPY}
             sort_files ${PD} ${PD_SORT_CONFIG} ${CLIENTS}
         fi
@@ -499,7 +499,7 @@ split_pdf () {
         ${THIS_PATH}/splitPDF.sh ${1} ${2} ${3} ${4}
     fi
 }
-
+/
 qm_billing () {
     #split source pdfs
     split_pdf "${PD}/${STATEMENT}" "${PD}/${STATEMENTS}" 2
