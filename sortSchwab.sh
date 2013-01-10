@@ -12,12 +12,12 @@
 THIS_PATH="`dirname \"$0\"`"
 
 #directory of containing client folders
-#clientDirectory="/mnt/pd"
-clientDirectory="/mnt/g"
+clientDirectory="/mnt/pd"
+#clientDirectory="/mnt/g"
 
 #mapping file
-#map="/mnt/config/mapping.txt"
-map="/mnt/shares/schwabtest/mapping.txt"
+map="/mnt/config/mapping.txt"
+#map="/mnt/shares/schwabtest/mapping.txt"
 
 read -p "Year (i.e. 2012): "
 TARGET_YEAR=$(echo $REPLY)
@@ -25,8 +25,8 @@ TARGET_YEAR=$(echo $REPLY)
 read -p "Month (i.e. A - January): "
 TARGET_MONTH=$(echo $REPLY)
 
-#TARGET_DIR="${clientDirectory}/Admin/Schwab Statements/${TARGET_YEAR}/${TARGET_MONTH}"
-TARGET_DIR="/mnt/shares/schwabtest/"
+TARGET_DIR="${clientDirectory}/Admin/Schwab Statements/${TARGET_YEAR}/${TARGET_MONTH}"
+#TARGET_DIR="/mnt/shares/schwabtest/"
 
 #directory of files to sort
 if [ ! -d "${TARGET_DIR}" ]; then
@@ -154,14 +154,14 @@ do
 				if [ ! -e "${finalDirectory}${fileName}.pdf" ]; then
 					echo "${f##*/}: renaming to ${fileName}"
 					echo "${f##*/}: moving ${fileName} to ${directoryName}"
-					#mv "$f" "${finalDirectory}${fileName}.pdf"
+					mv "$f" "${finalDirectory}${fileName}.pdf"
 				else
 					echo "${f##*/}: ${fileName} already exists in target location"
 				fi
 			else
 				if [ ! -e "${finalDirectory}${f##*/}" ]; then
 					echo "${f##*/}: moving to ${directoryName}"
-					#mv "$f" "${finalDirectory}${f##*/}"
+					mv "$f" "${finalDirectory}${f##*/}"
 				else
 					echo "${f##*/}: already exists in target location"
 				fi
