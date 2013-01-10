@@ -11,8 +11,8 @@ ERR_COUNT_CODE_NA=0
 ERR_COUNT_ADDRESS_CORRUPT=0
 ERR_COUNT_MULTIPLE_GROSS=0
 
-OUTFILE="barrett_sc.csv"
-#OUTFILE="/mnt/pd/Rserection/process/barrett_sc.csv"
+#OUTFILE="barrett_sc.csv"
+OUTFILE="/mnt/pd/Rserection/process/barrett_sc.csv"
 rm ${OUTFILE}
 
 PS_CONFIG="$4"
