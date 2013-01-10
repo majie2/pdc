@@ -11,10 +11,19 @@ firstname=""
 declare -A event_types
 declare -a event_type_order
 
+if [ ! -e "${1}" ]
+then
+	read -p "Could not find log file, press enter to exit"
+	exit 0
+fi
+
 if [ -e "${2}" ]
 then
+	echo "Deleting old csv file"
 	rm "${2}"
 fi
+
+echo "Furiously parsing the log file"
 
 while read line
 do
@@ -121,6 +130,8 @@ do
 	fi
 done < "${1}"
 
+echo "Creating CSV and injecting header..."
+
 header="SSN,Company,Last Name,First Name"
 
 for key in "${event_type_order[@]}"
@@ -129,3 +140,5 @@ do
 done
 
 echo "${header}" | cat - "${2}" > temp && mv temp "${2}"
+
+read -p "Complete, press enter to exit"
