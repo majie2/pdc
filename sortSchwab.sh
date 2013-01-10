@@ -12,10 +12,12 @@
 THIS_PATH="`dirname \"$0\"`"
 
 #directory of containing client folders
-clientDirectory="/mnt/pd"
+#clientDirectory="/mnt/pd"
+clientDirectory="/mnt/g"
 
 #mapping file
-map="/mnt/config/mapping.txt"
+#map="/mnt/config/mapping.txt"
+map="/mnt/shares/schwabtest/mapping.txt"
 
 read -p "Year (i.e. 2012): "
 TARGET_YEAR=$(echo $REPLY)
@@ -23,7 +25,8 @@ TARGET_YEAR=$(echo $REPLY)
 read -p "Month (i.e. A - January): "
 TARGET_MONTH=$(echo $REPLY)
 
-TARGET_DIR="${clientDirectory}/Admin/Schwab Statements/${TARGET_YEAR}/${TARGET_MONTH}"
+#TARGET_DIR="${clientDirectory}/Admin/Schwab Statements/${TARGET_YEAR}/${TARGET_MONTH}"
+TARGET_DIR="/mnt/shares/schwabtest/"
 
 #directory of files to sort
 if [ ! -d "${TARGET_DIR}" ]; then
@@ -53,6 +56,8 @@ echo "Discovering pdfs..."
 shopt -s nullglob
 find "${TARGET_DIR}"/*.pdf -print0 | while read -d $'\0' f
 do
+	echo "---------------------------------------------------"
+	echo "${f##*/}"
 	#convert pdf to text file
 	pdftotext -f 1 -l 1 "$f" "${TARGET_DIR}/temp.txt"
 	fileName=""
@@ -133,6 +138,7 @@ do
 
 			#directory for the year in client folder schwab statements
 			yearDirectory=${clientDirectory}/${directoryName}/Schwab\ Statements/$year/
+			
 			#directory for the month in client folder schwab statements
 			finalDirectory=${clientDirectory}/${directoryName}/Schwab\ Statements/$year/$letterDir\ -\ $monthDir/
 
@@ -146,18 +152,18 @@ do
 
 			if [ -n "${fileName}" ]; then
 				if [ ! -e "${finalDirectory}${fileName}.pdf" ]; then
-					echo "Renaming ${f##*/} to ${fileName}"
-					echo "Moving ${fileName} to ${directoryName}"
-					mv "$f" "${finalDirectory}${fileName}.pdf"
+					echo "${f##*/}: renaming to ${fileName}"
+					echo "${f##*/}: moving ${fileName} to ${directoryName}"
+					#mv "$f" "${finalDirectory}${fileName}.pdf"
 				else
-					echo "${fileName} already exists in target location"
+					echo "${f##*/}: ${fileName} already exists in target location"
 				fi
 			else
 				if [ ! -e "${finalDirectory}${f##*/}" ]; then
-					echo "Moving ${f##*/} to ${directoryName}"
-					mv "$f" "${finalDirectory}${f##*/}"
+					echo "${f##*/}: moving to ${directoryName}"
+					#mv "$f" "${finalDirectory}${f##*/}"
 				else
-					echo "${f##*/} already exists in target location"
+					echo "${f##*/}: already exists in target location"
 				fi
 			fi
 		fi

@@ -11,8 +11,8 @@ ERR_COUNT_CODE_NA=0
 ERR_COUNT_ADDRESS_CORRUPT=0
 ERR_COUNT_MULTIPLE_GROSS=0
 
-#OUTFILE="barrett_sc.csv"
-OUTFILE="/mnt/pd/Rserection/process/barrett_sc.csv"
+OUTFILE="barrett_sc.csv"
+#OUTFILE="/mnt/pd/Rserection/process/barrett_sc.csv"
 rm ${OUTFILE}
 
 PS_CONFIG="$4"
@@ -297,6 +297,7 @@ do
             loan_two=""
             
             let code_location=$location+6
+            echo "CODE LOC: ${code_location}"
             let amnt_location=$location+5
             
             #gross_pay_line=$(grep -n -m 1 "xxx-xx-${current: -4}" "${3}/all.txt")
@@ -344,6 +345,7 @@ do
         
         # get the code
         code=$(echo $line | cut -f${code_location} -d' ')
+        echo "CODE: ${code}"
         
         # determine the deduction type by code
         if [ "$code" == "03" ] #deduction
