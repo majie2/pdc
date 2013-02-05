@@ -63,18 +63,23 @@ do
 		
 		if [[ "${line}" == *"changed"* ]]
 		then
-			key=$(echo $line | grep -bo "changed" | cut -f1 -d:)
-			key_from=$(echo $line | grep -bo "from" | cut -f1 -d:)
-			let key_from=$key_from+4
-			key_to=$(echo $line | grep -bo "to " | cut -f1 -d:)
-			let key_to=$key_to+2
+			key=$(echo $line | grep -bo " changed " | cut -f1 -d:)
+			line_length="${#line}"
+			
+			key_from_start=$(echo $line | grep -bo " from " | cut -f1 -d:)
+			let key_from_end=$key_from_start+6
+			
+			key_to_start=$(echo $line | grep -bo " to " | cut -f1 -d:)
+			let key_to_end=$key_to_start+4
+			
+			let from_diff=$key_to_start-$key_from_end
 			
 			event_type=$(echo ${line:0:$(echo $key)} | cut -f2 -d:)
 			event_type_from="$(echo $event_type) from"
 			event_type_to="$(echo $event_type) to"
 			
-			event_desc_from=$(echo ${line:$(echo $key_from)} | cut -f1 -d' ' | tr -d '.')
-			event_desc_to=$(echo ${line:$(echo $key_to)} | cut -f1 -d' ' | tr -d '.')
+			event_desc_from=$(echo ${line:$(echo $key_from_end):$(echo $from_diff)} | tr -d '.' | tr -d "'")
+			event_desc_to=$(echo ${line:$(echo $key_to_end)} | cut -f2 -d"'" | tr -d '.' | tr -d "'")
 			
 			if [ -z "${event_types["${event_type_from// /_}"]}" ]
 			then
@@ -105,10 +110,15 @@ do
 		fi
 	fi
 	
+	if [ "${line}" == "New employee created" ]
+	then
+		new_ee="TRUE"
+	fi
+	
 	if [ "${#line}" -eq "0" ] && [ -n "$ssn" ]
 	then
 		
-		output_line="$ssn,$company,$lastname,$firstname"
+		output_line="$ssn,$company,$lastname,$firstname,$new_ee"
 		
 		for key in "${event_type_order[@]}"
 		do
@@ -127,12 +137,13 @@ do
 		trimmed=""
 		lastname=""
 		firstname=""
+		new_ee=""
 	fi
 done < "${1}"
 
 echo "Creating CSV and injecting header..."
 
-header="SSN,Company,Last Name,First Name"
+header="SSN,Company,Last Name,First Name,New EE"
 
 for key in "${event_type_order[@]}"
 do
